@@ -571,3 +571,16 @@ class CompleteStrategy(BaseModel):
     buy_signals: BuySignals
     sell_signals: SellSignals
     email: str
+
+## other classes that are used to make API calls
+class PricePlot(BaseModel):
+    instr: str = "GE"
+    start_date: str = "2015"
+    end_date: str = "2017"
+
+
+class BuyAndHold(BaseModel):
+    instr_list: List[str] = ["GE"]
+    account_size: int = 100000
+    start_date: str = "2015"
+    end_date: str = "2017"
