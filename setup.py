@@ -1,12 +1,20 @@
 from setuptools import find_packages, setup
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'schemas'))
+from schemas.version import VERSION
 
 setup(
     name='raposa-schemas',
     packages=find_packages(),
-    version='0.0.1',
-    description='Algo Dev',
-    author='Christian Hubbs',
+    version=VERSION,
+    description='Provides schemas for a consistent interface between UI and ' \
+        + 'back-end API.',
+    author='Christian Hubbs, Connor Valentine, Owais Sarwar',
     license='Not licensed for re-use.',
+    url='https://github.com/hubbs5/raposa-schemas',
+    packages = find_packages(),
     install_requires=[
         'pydantic',
         'typing-extensions'
