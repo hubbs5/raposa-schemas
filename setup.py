@@ -1,8 +1,9 @@
 from setuptools import find_packages, setup
-import sys
+from pathlib import Path
 import os
+import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'schemas'))
+sys.path.insert(0, os.path.join(Path(os.getcwd()), 'schemas'))
 from schemas.version import VERSION
 
 setup(
