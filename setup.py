@@ -7,7 +7,6 @@ from schemas.version import VERSION
 
 setup(
     name='raposa-schemas',
-    packages=find_packages(),
     version=VERSION,
     description='Provides schemas for a consistent interface between UI and ' \
         + 'back-end API.',
