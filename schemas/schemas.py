@@ -69,8 +69,8 @@ signal_count = [
 # - NOTE: all of the keys are what will show up in the dropdown menu, so their capitalization
 
 every_indicator = {
-    "Profits Reach": "STOP_PRICE",  # input is constrained to (+)
-    "Losses Reach": "STOP_PRICE",  # input numbers are constrained to (-)
+    "Stop Profit": "STOP_PRICE",  # input is constrained to (+)
+    "Stop Loss": "STOP_PRICE",  # input numbers are constrained to (-)
     "ATR Stop Profit": "ATR_STOP_PRICE",
     "ATR Stop Loss": "ATR_STOP_PRICE",
     "Price": "PRICE",
@@ -92,6 +92,19 @@ buy_indicators = {
     "MACD": "MACD",
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
+    "ATR": "ATR",
+    "Volatility": "VOLATILITY",
+    "PSAR": "PSAR",
+    "HURST": "HURST",
+}
+
+initial_position_sizings = {
+    "Equal Allocation": "EqualAllocation",
+    "Volatility Allocation": "VOLATILITYSizing",
+    "ATR Allocation": "ATRSizing",
+    "Turtle Allocation": "TurtleSizing",
+    "Turtle Pyramiding": "TurtlePyramiding",
+    "No Risk Management": "NoRiskManagement",
 }
 
 indicator_comps = {"Price": "PRICE", "SMA": "SMA", "EMA": "EMA", "MACD": "MACD"}
@@ -100,8 +113,7 @@ indicator_comps_price = {"SMA": "SMA", "EMA": "EMA", "MACD": "MACD"}
 
 sell_indicators = {
     "Stop Profit": "STOP_PRICE",  # uses same schema class, but input numbers are constrained to +
-    # uses same schema class, but input numbers are constrained to -
-    "Stop Loss": "STOP_PRICE",
+    "Stop Loss": "STOP_PRICE",  # uses same schema class, but input numbers are constrained to -
     "ATR Stop Profit": "ATR_STOP_PRICE",
     "ATR Stop Loss": "ATR_STOP_PRICE",
     "Price": "PRICE",
@@ -110,6 +122,10 @@ sell_indicators = {
     "MACD": "MACD",
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
+    "ATR": "ATR",
+    "Volatility": "VOLATILITY",
+    "PSAR": "PSAR",
+    "HURST": "HURST",
 }
 
 indicators_with_time_params = {
@@ -419,7 +435,7 @@ class HURST(BaseModel):
     valid_comps: list = ["LEVEL"]
 
 
-"POSITION SIZING / RISK MGMT ============================================="
+"classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
 
 
 class NoRiskManagement(BaseModel):
