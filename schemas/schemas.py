@@ -98,6 +98,15 @@ buy_indicators = {
     "HURST": "HURST",
 }
 
+initial_position_sizings = {
+    "Equal Allocation": "EqualAllocation",
+    "Volatility Allocation": "VOLATILITYSizing",
+    "ATR Allocation": "ATRSizing",
+    "Turtle Allocation": "TurtleSizing",
+    "Turtle Pyramiding": "TurtlePyramiding",
+    "No Risk Management": "NoRiskManagement",
+}
+
 indicator_comps = {"Price": "PRICE", "SMA": "SMA", "EMA": "EMA", "MACD": "MACD"}
 
 indicator_comps_price = {"SMA": "SMA", "EMA": "EMA", "MACD": "MACD"}
@@ -426,7 +435,7 @@ class HURST(BaseModel):
     valid_comps: list = ["LEVEL"]
 
 
-"POSITION SIZING / RISK MGMT ============================================="
+"classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
 
 
 class NoRiskManagement(BaseModel):
