@@ -19,7 +19,8 @@
 """
 
 
-"""notes about pydantic and Typing
+"""
+notes about pydantic and Typing
     - Union from typing allows for entries to be of either type BUT the 
     first listed will be prioritized. This WILL convert entry types.
 
@@ -40,9 +41,18 @@
         params = indicator_klass.__fields__['params']
         # This will make an object of the class that is hard to work with, but can be populated with
         temp_klass = indicator_klass()
+        print(temp_klass.params
 
-    print(temp_klass.params)
-    """
+"""
+
+'''
+How to add a new strategy option to the site that requires parameters (position sizing, risk management, etc)
+    - create the new dropdowns in buy_tab, sell_tab, or strategy_tab
+    - create the callbacks buy_tab, sell_tab, or strategy_tab
+    - add the new inputs to dash_app_main.build_strategy callback
+    - update utils_strategy_compilation.py
+    
+'''
 from typing import List, Union, Optional
 from pydantic import BaseModel, validator
 
@@ -98,7 +108,7 @@ buy_indicators = {
     "HURST": "HURST",
 }
 
-initial_position_sizings = {
+position_sizings = {
     "Equal Allocation": "EqualAllocation",
     "Volatility Allocation": "VOLATILITYSizing",
     "ATR Allocation": "ATRSizing",
@@ -107,9 +117,6 @@ initial_position_sizings = {
     "No Risk Management": "NoRiskManagement",
 }
 
-indicator_comps = {"Price": "PRICE", "SMA": "SMA", "EMA": "EMA", "MACD": "MACD"}
-
-indicator_comps_price = {"SMA": "SMA", "EMA": "EMA", "MACD": "MACD"}
 
 sell_indicators = {
     "Stop Profit": "STOP_PRICE",  # uses same schema class, but input numbers are constrained to +
@@ -202,24 +209,24 @@ class MACD(BaseModel):
     name: str = "MACD"
     params: dict = {"fastEMA_period": 10, "slowEMA_period": 20}
     needs_comp: bool = True
-    valid_comps: list = ["SMA", "EMA", "MACD", "PRICE"]
+    valid_comps: list = ["SMA", "EMA", "PRICE"]
 
-    @validator("params")
-    def param_key_check(cls, value):
-        key_standard = ["fastEMA_period", "slowEMA_period"]
-        if len(key_standard) != len(value):
-            raise ValueError("wrong number of parameters used to build MACD")
-        else:
-            for n, key in enumerate(value.keys()):
-                if key != key_standard[n]:
-                    raise ValueError(
-                        "Wrong parameters fed to MACD signal builder - please contact us about this bug"
-                    )
-                elif not isinstance(value[key], int):
-                    raise TypeError("MACD periods must be numbers")
-                elif not value[key] > 0:
-                    raise TypeError("MACD inputs must be greater than zero")
-        return value
+    # @validator("params")
+    # def param_key_check(cls, value):
+    #     key_standard = ["fastEMA_period", "slowEMA_period"]
+    #     if len(key_standard) != len(value):
+    #         raise ValueError("wrong number of parameters used to build MACD")
+    #     else:
+    #         for n, key in enumerate(value.keys()):
+    #             if key != key_standard[n]:
+    #                 raise ValueError(
+    #                     "Wrong parameters fed to MACD signal builder - please contact us about this bug"
+    #                 )
+    #             elif not isinstance(value[key], int):
+    #                 raise TypeError("MACD periods must be numbers")
+    #             elif not value[key] > 0:
+    #                 raise TypeError("MACD inputs must be greater than zero")
+    #     return value
 
     @validator("params")
     def fast_slow_comparison(cls, value, values):
@@ -291,15 +298,6 @@ class STOP_PRICE(BaseModel):
     needs_comp: bool = True  # will always be price
     valid_comps: list = ["PRICE"]
     # this is used to confirm the param percent chosen matches profit or loss
-    note: str = "loss or profit annotation"
-
-    @validator("note")
-    def check_valid_percent(cls, value, values, **kwargs):
-        if value == "Stop Profit" and values["params"]["percent_change"] < 0:
-            raise ValueError("Stop Profit signal must have positive percentage")
-        elif value == "Stop Loss" and values["params"]["percent_change"] > 0:
-            raise ValueError("Stop Loss signal must have negative percentage")
-        return value
 
     @validator("params")
     def param_key_check(cls, value):
@@ -325,7 +323,7 @@ class ATR_STOP_PRICE(BaseModel):
     name: str = "ATR_STOP_PRICE"
     params: dict = dict(
         period=20,
-        entry_price=10,
+        # entry_price=10,
         stop_price_ATR_frac=-2.0,  # positive for stop profit, negative for stop price
     )
     needs_comp: bool = True
@@ -340,12 +338,7 @@ class PRICE(BaseModel):
         "price_type": "Close"
     }  # "High", "Low", or "Close" (always use Adj Close)
     needs_comp: bool = True
-    valid_comps: list = ["SMA", "EMA", "MACD", "ATR", "LEVEL"]
-
-    @validator("params")
-    def param_key_check(cls, value):
-        if 0 != len(value):
-            raise ValueError("Price indicator should not have any parameters")
+    valid_comps: list = ["SMA", "EMA", "MACD", "ATR"]
 
 
 class ATR(BaseModel):
