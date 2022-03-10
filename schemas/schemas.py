@@ -84,6 +84,7 @@ every_indicator = {
     "ATR Stop Profit": "ATR_STOP_PRICE",
     "ATR Stop Loss": "ATR_STOP_PRICE",
     "Price": "PRICE",
+    "Price Window": "PRICE_WINDOW", 
     "SMA": "SMA",
     "EMA": "EMA",
     "MACD": "MACD",
@@ -97,6 +98,7 @@ every_indicator = {
 
 buy_indicators = {
     "Price": "PRICE",
+    "Price Window": "PRICE_WINDOW", 
     "SMA": "SMA",
     "EMA": "EMA",
     "MACD": "MACD",
@@ -124,6 +126,7 @@ sell_indicators = {
     "ATR Stop Profit": "ATR_STOP_PRICE",
     "ATR Stop Loss": "ATR_STOP_PRICE",
     "Price": "PRICE",
+    "Price Window": "PRICE_WINDOW", 
     "SMA": "SMA",
     "EMA": "EMA",
     "MACD": "MACD",
@@ -146,6 +149,7 @@ indicators_with_time_params = {
     "ATR_STOP_PRICE": ["period"],
     "VOLATILITY": ["period"],
     "PSAR": ["period"],
+    "PRICE_WINDOW": ["period"],
 }
 
 relations = {"Greater than": "geq", "Less than": "leq", "Equal to": "eq"}
@@ -340,7 +344,16 @@ class PRICE(BaseModel):
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "ATR"]
 
-
+class PRICE_WINDOW(BaseModel):
+    name: str = 'PRICE_WINDOW'
+    params: dict = {
+                "period":30, # Number of days to look back 
+                "max_or_min": 'max', # Either 'max' or 'min' to take over price window 
+                "price_type":"High" #"High", "Low", or "Close" (always use Adj Close)
+                    } 
+    needs_comp: bool = True
+    valid_comps: list = ["PRICE", "LEVEL"]
+    
 class ATR(BaseModel):
     name: str = "ATR"
     params: dict = {"period": 20, "multiple": 1}
