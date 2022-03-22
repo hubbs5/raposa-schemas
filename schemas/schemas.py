@@ -106,7 +106,7 @@ buy_indicators = {
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
     "ATR": "ATR",
-    "ATRP":"ATRP"
+    "ATRP":"ATRP",
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
