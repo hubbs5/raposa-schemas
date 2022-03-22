@@ -152,7 +152,13 @@ indicators_with_time_params = {
     "PRICE_WINDOW": ["period"],
 }
 
-relations = {"Greater than": "geq", "Less than": "leq", "Equal to": "eq"}
+relations = {
+    "Greater than or equal to": "geq", 
+    "Less than or equal to": "leq", 
+    "Greter than": "gt",
+    "Less than":"lt", 
+    "Equal to": "eq"
+    }
 
 
 """ all of these indicator classes have the same number of inputs
