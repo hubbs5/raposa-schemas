@@ -4,7 +4,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(Path(os.getcwd())))
-from schemas.version import VERSION
+from raposa_schemas.version import VERSION
 
 setup(
     name='raposa-schemas',
