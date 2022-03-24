@@ -91,6 +91,7 @@ every_indicator = {
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
     "ATR": "ATR",
+    "ATRP": "ATRP",
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
@@ -105,6 +106,7 @@ buy_indicators = {
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
     "ATR": "ATR",
+    "ATRP":"ATRP",
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
@@ -133,6 +135,7 @@ sell_indicators = {
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
     "ATR": "ATR",
+    "ATRP": "ATRP",
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
@@ -152,7 +155,13 @@ indicators_with_time_params = {
     "PRICE_WINDOW": ["period"],
 }
 
-relations = {"Greater than": "geq", "Less than": "leq", "Equal to": "eq"}
+relations = {
+    "Greater than or equal to": "geq", 
+    "Less than or equal to": "leq", 
+    "Greter than": "gt",
+    "Less than":"lt", 
+    "Equal to": "eq"
+    }
 
 
 """ all of these indicator classes have the same number of inputs
@@ -377,7 +386,28 @@ class ATR(BaseModel):
                     raise TypeError("ATR period must be greater than zero")
         return value
 
+class ATRP(BaseModel):
+    name: str = "ATRP"
+    params: dict = {"period": 20, "multiple": 1}
+    needs_comp: bool = False
+    valid_comps: list = ["PRICE"]
 
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period"]
+        if len(key_standard) != len(value):
+            raise ValueError("wrong number of parameters used to build ATR")
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to ATRP signal builder - please contact us about this bug"
+                    )
+                elif not isinstance(value[key], int):
+                    raise TypeError("ATRP period and multiple must be a number")
+                elif not value[key] > 0:
+                    raise TypeError("ATRP period must be greater than zero")
+        return value
 class LEVEL(BaseModel):
     name: str = "LEVEL"
     params: dict = {"level": 10}
