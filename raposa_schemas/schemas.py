@@ -158,7 +158,7 @@ indicators_with_time_params = {
 relations = {
     "Greater than or equal to": "geq", 
     "Less than or equal to": "leq", 
-    "Greter than": "gt",
+    "Greater than": "gt",
     "Less than":"lt", 
     "Equal to": "eq"
     }
