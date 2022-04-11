@@ -480,7 +480,7 @@ class NoRiskManagement(BaseModel):
 
 
 class EqualAllocation(BaseModel):
-    name: str = "EqAll"
+    name: str = "EqualAllocation"
     params: dict = {}
 
 
@@ -595,8 +595,8 @@ class StrategySettings(BaseModel):
     instruments: List[str]
     trade_days: List[str] = ["mon", "wed", "fri"]
     trade_frequency: int = 1
-    position_sizing_strategy: dict = {"name": "EqAll", "params": {}}
-    position_management_strategy: dict = {"name": "EqAll", "params": {}}
+    position_sizing_strategy: dict = {"name": "EqualAllocation", "params": {}}
+    position_management_strategy: dict = {"name": "EqualAllocation", "params": {}}
     rebalance_days: List[str] = ["wed"]
     rebalance_frequency: int = 4
 
