@@ -116,7 +116,7 @@ position_sizings = {
     "Equal Allocation": "EqualAllocation",
     "Volatility Allocation": "VOLATILITYSizing",
     "ATR Allocation": "ATRSizing",
-    "Turtle Allocation": "TurtleSizing",
+    "Turtle Allocation": "TurtleUnitSizing",
     "Turtle Pyramiding": "TurtlePyramiding",
     "No Risk Management": "NoRiskManagement",
 }
@@ -498,8 +498,8 @@ class ATRSizing(BaseModel):
     params: dict = {"period": 20, "risk_coefficient": 2, "max_position_risk_frac": 0.02}
 
 
-class TurtleSizing(BaseModel):
-    name: str = "TurtleSizing"
+class TurtleUnitSizing(BaseModel):
+    name: str = "TurtleUnitSizing"
     params: dict = {
         "period": 20,  # used to calculate N
         "risk_coefficient": 2,
