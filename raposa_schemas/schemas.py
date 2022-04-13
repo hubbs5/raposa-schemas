@@ -57,7 +57,7 @@ from typing import List, Union, Optional
 from pydantic import BaseModel, validator
 
 # List parameters and input ranges for each
-max_signals = 5
+max_signals = 3
 max_instruments = 25
 
 signal_count = [
@@ -76,13 +76,11 @@ signal_count = [
 # These dictionaries are used throughout the app. When used in a dropdown, the .key() is used as the label and value of the dropdown.
 # in utils.py, when assembling the list of signals, the value of the dropdown is used as the dictionary key, and the output is the name of the
 # corresponding SCHEMA class listed at the bottom of this file.
-# - NOTE: all of the keys are what will show up in the dropdown menu, so their capitalization
+# - NOTE: all of the keys are what will show up in the dropdown menu, so their capitalization matters
 
 every_indicator = {
-    "Stop Profit": "STOP_PRICE",  # input is constrained to (+)
-    "Stop Loss": "STOP_PRICE",  # input numbers are constrained to (-)
-    "ATR Stop Profit": "ATR_STOP_PRICE",
-    "ATR Stop Loss": "ATR_STOP_PRICE",
+    "Stop Price": "STOP_PRICE", 
+    "ATR Stop Price": "ATR_STOP_PRICE",
     "Price": "PRICE",
     "Price Window": "PRICE_WINDOW", 
     "SMA": "SMA",
@@ -123,10 +121,8 @@ position_sizings = {
 
 
 sell_indicators = {
-    "Stop Profit": "STOP_PRICE",  # uses same schema class, but input numbers are constrained to +
-    "Stop Loss": "STOP_PRICE",  # uses same schema class, but input numbers are constrained to -
-    "ATR Stop Profit": "ATR_STOP_PRICE",
-    "ATR Stop Loss": "ATR_STOP_PRICE",
+    "Stop Price": "STOP_PRICE", 
+    "ATR Stop Price": "ATR_STOP_PRICE",
     "Price": "PRICE",
     "Price Window": "PRICE_WINDOW", 
     "SMA": "SMA",
@@ -310,7 +306,6 @@ class STOP_PRICE(BaseModel):
     }  # will be positive for stop profit and neg for stop loss
     needs_comp: bool = True  # will always be price
     valid_comps: list = ["PRICE"]
-    # this is used to confirm the param percent chosen matches profit or loss
 
     @validator("params")
     def param_key_check(cls, value):
