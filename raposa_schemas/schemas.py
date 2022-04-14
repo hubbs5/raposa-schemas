@@ -430,7 +430,7 @@ class LEVEL(BaseModel):
 
 class BOOLEAN(BaseModel):
     name: str = "BOOLEAN"
-    params: dict = {"boolean": True}  # or 'False'
+    params: dict = {"boolean": True}  # or False
     needs_comp: bool = True
     valid_comps: list = ["PSAR"]
 
@@ -463,7 +463,7 @@ class PSAR(BaseModel):
 class HURST(BaseModel):
     name: str = "HURST"
     params: dict = {"period": 10, "minLags": 2, "maxLags": 20}
-    needs_comps: bool = True
+    needs_comp: bool = True
     valid_comps: list = ["LEVEL"]
 
 
