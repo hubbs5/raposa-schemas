@@ -95,6 +95,26 @@ every_indicator = {
     "HURST": "HURST",
 }
 
+# this is used only when searching for valid_comps for the dropdown.
+# For now it is just every_indicator but with level added
+every_comp_indicator = {
+    "Stop Price": "STOP_PRICE", 
+    "ATR Stop Price": "ATR_STOP_PRICE",
+    "Price": "PRICE",
+    "Price Window": "PRICE_WINDOW", 
+    "SMA": "SMA",
+    "EMA": "EMA",
+    "MACD": "MACD",
+    "MACD Signal": "MACD_SIGNAL",
+    "RSI": "RSI",
+    "ATR": "ATR",
+    "ATRP": "ATRP",
+    "Volatility": "VOLATILITY",
+    "PSAR": "PSAR",
+    "HURST": "HURST",
+    "Level": "LEVEL",
+}
+
 buy_indicators = {
     "Price": "PRICE",
     "Price Window": "PRICE_WINDOW", 
