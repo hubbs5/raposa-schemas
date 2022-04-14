@@ -407,7 +407,7 @@ class ATRP(BaseModel):
 class LEVEL(BaseModel):
     name: str = "LEVEL"
     params: dict = {"level": 10}
-    needs_comp: bool = False  # always is a comparison to RSI
+    needs_comp: bool = False  # always is a comparison
     valid_comps: list = None
 
     @validator("params")
@@ -438,7 +438,7 @@ class BOOLEAN(BaseModel):
 class VOLATILITY(BaseModel):
     name: str = "VOLATILITY"
     params: dict = {"period": 252, "multiple": 1}
-    needs_comp: bool = False
+    needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]
 
 
