@@ -362,7 +362,7 @@ class PRICE_WINDOW(BaseModel):
 class ATR(BaseModel):
     name: str = "ATR"
     params: dict = {"period": 20, "multiple": 1}
-    needs_comp: bool = False
+    needs_comp: bool = True
     valid_comps: list = ["PRICE"]
 
     @validator("params")
@@ -385,7 +385,7 @@ class ATR(BaseModel):
 class ATRP(BaseModel):
     name: str = "ATRP"
     params: dict = {"period": 20, "multiple": 1}
-    needs_comp: bool = False
+    needs_comp: bool = True
     valid_comps: list = ["PRICE"]
 
     @validator("params")
