@@ -222,6 +222,7 @@ class MACD(BaseModel):
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "PRICE"]
     #param bound >= 2 and < 1000
+    # need to enforce that fastEMA period is > =slowEMAperiod
 
     # @validator("params")
     # def param_key_check(cls, value):
@@ -254,6 +255,7 @@ class MACD_SIGNAL(BaseModel):
     needs_comp: bool = False
     valid_comps: list = None
     #param bound >= 2 and < 1000
+    # need to enforce that fastEMA period is > =slowEMAperiod
 
     @validator("params")
     def param_key_check(cls, value):
