@@ -93,8 +93,10 @@ every_indicator = {
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
+    "Level": "LEVEL",
 }
 
+# buy_indicators and sell_indicators are used in the dropdown menus for buy and sell tabs.
 buy_indicators = {
     "Price": "PRICE",
     "Price Window": "PRICE_WINDOW", 
@@ -109,16 +111,6 @@ buy_indicators = {
     "PSAR": "PSAR",
     "HURST": "HURST",
 }
-
-position_sizings = {
-    "Equal Allocation": "EqualAllocation",
-    "Volatility Allocation": "VOLATILITYSizing",
-    "ATR Allocation": "ATRSizing",
-    "Turtle Allocation": "TurtleUnitSizing",
-    "Turtle Pyramiding": "TurtlePyramiding",
-    "No Risk Management": "NoRiskManagement",
-}
-
 
 sell_indicators = {
     "Stop Price": "STOP_PRICE", 
@@ -135,6 +127,15 @@ sell_indicators = {
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
+}
+
+position_sizings = {
+    "Equal Allocation": "EqualAllocation",
+    "Volatility Allocation": "VOLATILITYSizing",
+    "ATR Allocation": "ATRSizing",
+    "Turtle Allocation": "TurtleUnitSizing",
+    "Turtle Pyramiding": "TurtlePyramiding",
+    "No Risk Management": "NoRiskManagement",
 }
 
 indicators_with_time_params = {
