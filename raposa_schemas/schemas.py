@@ -93,28 +93,10 @@ every_indicator = {
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
-}
-
-# this is used only when searching for valid_comps for the dropdown.
-# For now it is just every_indicator but with level added
-every_comp_indicator = {
-    "Stop Price": "STOP_PRICE", 
-    "ATR Stop Price": "ATR_STOP_PRICE",
-    "Price": "PRICE",
-    "Price Window": "PRICE_WINDOW", 
-    "SMA": "SMA",
-    "EMA": "EMA",
-    "MACD": "MACD",
-    "MACD Signal": "MACD_SIGNAL",
-    "RSI": "RSI",
-    "ATR": "ATR",
-    "ATRP": "ATRP",
-    "Volatility": "VOLATILITY",
-    "PSAR": "PSAR",
-    "HURST": "HURST",
     "Level": "LEVEL",
 }
 
+# buy_indicators and sell_indicators are used in the dropdown menus for buy and sell tabs.
 buy_indicators = {
     "Price": "PRICE",
     "Price Window": "PRICE_WINDOW", 
@@ -129,16 +111,6 @@ buy_indicators = {
     "PSAR": "PSAR",
     "HURST": "HURST",
 }
-
-position_sizings = {
-    "Equal Allocation": "EqualAllocation",
-    "Volatility Allocation": "VOLATILITYSizing",
-    "ATR Allocation": "ATRSizing",
-    "Turtle Allocation": "TurtleUnitSizing",
-    "Turtle Pyramiding": "TurtlePyramiding",
-    "No Risk Management": "NoRiskManagement",
-}
-
 
 sell_indicators = {
     "Stop Price": "STOP_PRICE", 
@@ -155,6 +127,15 @@ sell_indicators = {
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
+}
+
+position_sizings = {
+    "Equal Allocation": "EqualAllocation",
+    "Volatility Allocation": "VOLATILITYSizing",
+    "ATR Allocation": "ATRSizing",
+    "Turtle Allocation": "TurtleUnitSizing",
+    "Turtle Pyramiding": "TurtlePyramiding",
+    "No Risk Management": "NoRiskManagement",
 }
 
 indicators_with_time_params = {
