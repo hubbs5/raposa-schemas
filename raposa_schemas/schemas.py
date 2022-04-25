@@ -172,6 +172,7 @@ class SMA(BaseModel):
     params: dict = {"period": 10}
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "PRICE"]
+    #param bound >= 2 and < 1000
 
     @validator("params")
     def param_key_check(cls, value):
@@ -196,7 +197,7 @@ class EMA(BaseModel):
     params: dict = {"period": 10}
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "PRICE"]
-
+    #param bound >= 2 and < 1000
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["period"]
@@ -220,6 +221,8 @@ class MACD(BaseModel):
     params: dict = {"fastEMA_period": 10, "slowEMA_period": 20}
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "PRICE"]
+    #param bound >= 2 and < 1000
+    # need to enforce that fastEMA period is > =slowEMAperiod
 
     # @validator("params")
     # def param_key_check(cls, value):
@@ -251,6 +254,8 @@ class MACD_SIGNAL(BaseModel):
 
     needs_comp: bool = False
     valid_comps: list = None
+    #param bound >= 2 and < 1000
+    # need to enforce that fastEMA period is > =slowEMAperiod
 
     @validator("params")
     def param_key_check(cls, value):
@@ -281,6 +286,8 @@ class RSI(BaseModel):
     params: dict = {"period": 10}
     needs_comp: bool = True  # will always be level
     valid_comps: list = ["LEVEL"]
+    #param period bound >= 2 and < 1000
+    # LEVEL for RSI is always between 0 and 100
 
     @validator("params")
     def param_key_check(cls, value):
@@ -307,7 +314,7 @@ class STOP_PRICE(BaseModel):
     }  # will be positive for stop profit and neg for stop loss
     needs_comp: bool = True  # will always be price
     valid_comps: list = ["PRICE"]
-
+    #param bound > -100% and < 10000%
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["percent_change"]
@@ -337,7 +344,8 @@ class ATR_STOP_PRICE(BaseModel):
     )
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
-
+    #param period bound >= 2 and < 1000
+    # stop price frac bound by -10 and + 10
     # TODO: Add validators
 
 
@@ -358,12 +366,15 @@ class PRICE_WINDOW(BaseModel):
                     } 
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]
+    #param period bound >= 2 and < 1000
     
 class ATR(BaseModel):
     name: str = "ATR"
     params: dict = {"period": 20, "multiple": 1}
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
+    #param period bound >= 2 and < 1000
+    #param multiple bound by greather than 0.25 to 10
 
     @validator("params")
     def param_key_check(cls, value):
@@ -387,6 +398,8 @@ class ATRP(BaseModel):
     params: dict = {"period": 20, "multiple": 1}
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
+    #param period bound >= 2 and < 1000
+    #param multiple bound by greather than 0.25 to 10
 
     @validator("params")
     def param_key_check(cls, value):
@@ -404,11 +417,14 @@ class ATRP(BaseModel):
                 elif not value[key] > 0:
                     raise TypeError("ATRP period must be greater than zero")
         return value
+
 class LEVEL(BaseModel):
     name: str = "LEVEL"
     params: dict = {"level": 10}
     needs_comp: bool = False  # always is a comparison
     valid_comps: list = None
+    # param level bound by 0 and 100
+    # might need to be negative for somethings
 
     @validator("params")
     def param_key_check(cls, value):
@@ -440,7 +456,8 @@ class VOLATILITY(BaseModel):
     params: dict = {"period": 252, "multiple": 1}
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]
-
+    #param period bound >= 2 and < 1000
+    #param multiple bound by greather than 0.25 to 10
 
 class PSAR(BaseModel):
     """
@@ -465,6 +482,8 @@ class HURST(BaseModel):
     params: dict = {"period": 10, "minLags": 2, "maxLags": 20}
     needs_comp: bool = True
     valid_comps: list = ["LEVEL"]
+    # param period bound >= 2 and < 1000 for min lags and max lags as well
+    # min lags must be less than max lags and both greater than one
 
 
 "classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
@@ -487,12 +506,17 @@ class VOLATILITYSizing(BaseModel):
         "risk_coefficient": 1,
         "max_position_risk_frac": 0.02,
     }
+    # param period bound >= 2 and < 1000 for min lags and max lags as well
+    # risk coefficient: (0,10) but not quite 0
+    # max_position risk fraction (0,1) do not include 0
 
 
 class ATRSizing(BaseModel):
     name: str = "ATRSizing"
     params: dict = {"period": 20, "risk_coefficient": 2, "max_position_risk_frac": 0.02}
-
+    # param period bound >= 2 and < 1000 for min lags and max lags as well
+    # risk coefficient: (0,10) but not quite 0
+    # max_position risk fraction (0,1) do not include 0
 
 class TurtleUnitSizing(BaseModel):
     name: str = "TurtleUnitSizing"
@@ -502,6 +526,10 @@ class TurtleUnitSizing(BaseModel):
         "max_position_risk_frac": 0.02,
         "num_turtle_units": 1,
     }
+    # param period bound >= 2 and < 1000 for min lags and max lags as well
+    # risk coefficient: (0,10) but not quite 0
+    # max_position risk fraction (0,1) do not include 0
+    # number of turtle units must be > 0
 
 
 class TurtlePyramiding(BaseModel):
@@ -514,7 +542,11 @@ class TurtlePyramiding(BaseModel):
         "delta_N_frac": 0.5,
         "stop_price_N_frac": -2.0,  # positive for stop profit, negative for stop loss
     }
-
+    # param period bound >= 2 and < 1000 for min lags and max lags as well
+    # risk coefficient: (0,10) but not quite 0
+    # max_position num entry points integer > 0
+    # delta N fraction: > 0 
+    # stop price n fraction sort of like ATR stop price -10 to +10
 
 "SIGNALS ====================================================="
 
