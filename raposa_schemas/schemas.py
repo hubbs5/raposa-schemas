@@ -973,8 +973,9 @@ class StrategySettings(BaseModel):
     # https://pydantic-docs.helpmanual.io/usage/validators/
     @validator("trade_frequency")
     def trade_frequency_check(cls, value):
-        if not isinstance(value, int) or not value > 1:
+        if not isinstance(value, int) or not value > 0:
             raise TypeError("Trade frequency must be a positive integer.")
+        return value
 
     @validator("instruments")  # make sure this list is not empty
     def instruments_check(cls, value):
@@ -984,13 +985,10 @@ class StrategySettings(BaseModel):
 
     @validator("rebalance_frequency")  # make sure this list is not empty
     def rebalance_frequency_check(cls, value):
-        if not isinstance(value, int) or not value > 1:
+        if not isinstance(value, int) or not value > 0:
             raise TypeError("Rebalance frequency must be a positive integer.")
+        return value
 
-    # @validator("position_sizing_params") # If params are present
-    # def position_sizing_params(cls, value):
-    #     assert value is not None, "If present, a value is required."
-    #     return value
 
 
 # TODO: I don't particularly like layering so many schemas, but I can't
