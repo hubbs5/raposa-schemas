@@ -45,15 +45,16 @@ notes about pydantic and Typing
 
 """
 
-'''
+"""
 How to add a new strategy option to the site that requires parameters (position sizing, risk management, etc)
     - create the new dropdowns in buy_tab, sell_tab, or strategy_tab
     - create the callbacks buy_tab, sell_tab, or strategy_tab
     - add the new inputs to dash_app_main.build_strategy callback
     - update utils_strategy_compilation.py
     
-'''
+"""
 from typing import List, Union, Optional
+from xmlrpc.client import boolean
 from pydantic import BaseModel, validator
 
 # List parameters and input ranges for each
@@ -79,10 +80,10 @@ signal_count = [
 # - NOTE: all of the keys are what will show up in the dropdown menu, so their capitalization matters
 
 every_indicator = {
-    "Stop Price": "STOP_PRICE", 
+    "Stop Price": "STOP_PRICE",
     "ATR Stop Price": "ATR_STOP_PRICE",
     "Price": "PRICE",
-    "Price Window": "PRICE_WINDOW", 
+    "Price Window": "PRICE_WINDOW",
     "SMA": "SMA",
     "EMA": "EMA",
     "MACD": "MACD",
@@ -91,7 +92,7 @@ every_indicator = {
     "ATR": "ATR",
     "ATRP": "ATRP",
     "Volatility": "VOLATILITY",
-    "PSAR": "PSAR",
+    # "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
 }
@@ -99,24 +100,7 @@ every_indicator = {
 # buy_indicators and sell_indicators are used in the dropdown menus for buy and sell tabs.
 buy_indicators = {
     "Price": "PRICE",
-    "Price Window": "PRICE_WINDOW", 
-    "SMA": "SMA",
-    "EMA": "EMA",
-    "MACD": "MACD",
-    "MACD Signal": "MACD_SIGNAL",
-    "RSI": "RSI",
-    "ATR": "ATR",
-    "ATRP":"ATRP",
-    "Volatility": "VOLATILITY",
-    "PSAR": "PSAR",
-    "HURST": "HURST",
-}
-
-sell_indicators = {
-    "Stop Price": "STOP_PRICE", 
-    "ATR Stop Price": "ATR_STOP_PRICE",
-    "Price": "PRICE",
-    "Price Window": "PRICE_WINDOW", 
+    "Price Window": "PRICE_WINDOW",
     "SMA": "SMA",
     "EMA": "EMA",
     "MACD": "MACD",
@@ -125,7 +109,24 @@ sell_indicators = {
     "ATR": "ATR",
     "ATRP": "ATRP",
     "Volatility": "VOLATILITY",
-    "PSAR": "PSAR",
+    # "PSAR": "PSAR",
+    "HURST": "HURST",
+}
+
+sell_indicators = {
+    "Stop Price": "STOP_PRICE",
+    "ATR Stop Price": "ATR_STOP_PRICE",
+    "Price": "PRICE",
+    "Price Window": "PRICE_WINDOW",
+    "SMA": "SMA",
+    "EMA": "EMA",
+    "MACD": "MACD",
+    "MACD Signal": "MACD_SIGNAL",
+    "RSI": "RSI",
+    "ATR": "ATR",
+    "ATRP": "ATRP",
+    "Volatility": "VOLATILITY",
+    # "PSAR": "PSAR",
     "HURST": "HURST",
 }
 
@@ -152,13 +153,7 @@ indicators_with_time_params = {
     "PRICE_WINDOW": ["period"],
 }
 
-relations = {
-    "> or =": "geq", 
-    "< or =": "leq", 
-    ">": "gt",
-    "<":"lt", 
-    "=": "eq"
-    }
+relations = {"> or =": "geq", "< or =": "leq", ">": "gt", "<": "lt", "=": "eq"}
 
 
 """ all of these indicator classes have the same number of inputs
@@ -172,23 +167,25 @@ class SMA(BaseModel):
     params: dict = {"period": 10}
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "PRICE"]
-    #param bound >= 2 and < 1000
+    # param bound >= 2 and < 1000
 
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["period"]
         if len(key_standard) != len(value):
-            raise ValueError("wrong number of parameters used to build SMA")
+            raise ValueError(
+                "Wrong number of parameters used to build SMA - please contact us about this bug."
+            )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to SMA signal builder - please contact us about this bug"
+                        "Wrong parameters fed to SMA signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("SMA period must be a number")
+                    raise TypeError("SMA period must be a postive integer.")
                 elif not value[key] > 0:
-                    raise TypeError("SMA period must be greater than zero")
+                    raise TypeError("SMA period must be > zero.")
         return value
 
 
@@ -197,22 +194,24 @@ class EMA(BaseModel):
     params: dict = {"period": 10}
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "PRICE"]
-    #param bound >= 2 and < 1000
+    # param bound >= 2 and < 1000
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["period"]
         if len(key_standard) != len(value):
-            raise ValueError("wrong number of parameters used to build EMA")
+            raise ValueError(
+                "Wrong number of parameters used to build EMA - please contact us about this bug."
+            )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to EMA signal builder - please contact us about this bug"
+                        "Wrong parameters fed to EMA signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("EMA period must be a number")
+                    raise TypeError("EMA period must be a postive integer")
                 elif not value[key] > 0:
-                    raise TypeError("EMA period must be greater than zero")
+                    raise TypeError("EMA period must be > zero")
         return value
 
 
@@ -221,30 +220,32 @@ class MACD(BaseModel):
     params: dict = {"fastEMA_period": 10, "slowEMA_period": 20}
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "PRICE"]
-    #param bound >= 2 and < 1000
+    # param bound >= 2 and < 1000
     # need to enforce that fastEMA period is > =slowEMAperiod
 
-    # @validator("params")
-    # def param_key_check(cls, value):
-    #     key_standard = ["fastEMA_period", "slowEMA_period"]
-    #     if len(key_standard) != len(value):
-    #         raise ValueError("wrong number of parameters used to build MACD")
-    #     else:
-    #         for n, key in enumerate(value.keys()):
-    #             if key != key_standard[n]:
-    #                 raise ValueError(
-    #                     "Wrong parameters fed to MACD signal builder - please contact us about this bug"
-    #                 )
-    #             elif not isinstance(value[key], int):
-    #                 raise TypeError("MACD periods must be numbers")
-    #             elif not value[key] > 0:
-    #                 raise TypeError("MACD inputs must be greater than zero")
-    #     return value
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["fastEMA_period", "slowEMA_period"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build MACD - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to MACD - please contact us about this bug."
+                    )
+                elif not isinstance(value[key], int):
+                    raise TypeError("MACD periods must be postive integers.")
+                elif not value[key] > 0:
+                    raise TypeError("MACD inputs must be > zero.")
+        return value
 
     @validator("params")
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
-            raise ValueError("MACD fast EMA period must be less than slow EMA period")
+            raise ValueError("The 1st EMA period for MACD must be < the 2nd EMA period")
         return value
 
 
@@ -254,30 +255,34 @@ class MACD_SIGNAL(BaseModel):
 
     needs_comp: bool = False
     valid_comps: list = None
-    #param bound >= 2 and < 1000
+    # param bound >= 2 and < 1000
     # need to enforce that fastEMA period is > =slowEMAperiod
 
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["fastEMA_period", "slowEMA_period", "signalEMA_period"]
         if len(key_standard) != len(value):
-            raise ValueError("wrong number of parameters used to build MACD_SIGNAL")
+            raise ValueError(
+                "Wrong number of parameters used to build MACD Signal - please contact us about this bug."
+            )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to MACD Signal signal builder - please contact us about this bug"
+                        "Wrong parameters fed to MACD Signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("MACD Signal periods must be numbers")
+                    raise TypeError("MACD Signal periods must be positive integers.")
                 elif not value[key] > 0:
-                    raise TypeError("MACD Signal inputs must be greater than zero")
+                    raise TypeError("MACD Signal inputs must be > zero.")
         return value
 
     @validator("params")
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
-            raise ValueError("MACD fast EMA period must be less than slow EMA period")
+            raise ValueError(
+                "The 1st EMA period for MACD Signal must be < the 2nd EMA period"
+            )
         return value
 
 
@@ -286,14 +291,16 @@ class RSI(BaseModel):
     params: dict = {"period": 10}
     needs_comp: bool = True  # will always be level
     valid_comps: list = ["LEVEL"]
-    #param period bound >= 2 and < 1000
+    # param period bound >= 2 and < 1000
     # LEVEL for RSI is always between 0 and 100
 
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["period"]
         if len(key_standard) != len(value):
-            raise ValueError("wrong number of parameters used to build RSI")
+            raise ValueError(
+                "Wrong number of parameters used to build RSI - please contact us about this bug."
+            )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
@@ -301,9 +308,9 @@ class RSI(BaseModel):
                         "Wrong parameters fed to RSI signal builder - please contact us about this bug"
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("RSI period must be a number")
+                    raise TypeError("RSI period must be a positive integer.")
                 elif not value[key] > 0:
-                    raise TypeError("RSI inputs must be greater than zero")
+                    raise TypeError("RSI period must be > zero")
         return value
 
 
@@ -314,24 +321,24 @@ class STOP_PRICE(BaseModel):
     }  # will be positive for stop profit and neg for stop loss
     needs_comp: bool = True  # will always be price
     valid_comps: list = ["PRICE"]
-    #param bound > -100% and < 10000%
+    # param bound > -100% and < 10000%
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["percent_change"]
         if len(key_standard) != len(value):
             raise ValueError(
-                "wrong number of parameters used to build stop loss or profit signal"
+                "Wrong number of parameters used to build stop price signal - please contact us about this bug."
             )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to stop signal builder - please contact us about this bug"
+                        "Wrong parameters fed to stop signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], float) and not isinstance(
                     value[key], int
                 ):
-                    raise TypeError("stop loss or stop profit % must be a number")
+                    raise TypeError("Stop price % must be a number.")
         return value
 
 
@@ -344,79 +351,164 @@ class ATR_STOP_PRICE(BaseModel):
     )
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
-    #param period bound >= 2 and < 1000
+    # param period bound >= 2 and < 1000
     # stop price frac bound by -10 and + 10
-    # TODO: Add validators
+
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "stop_price_ATR_frac"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build ATR stop price - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to stop signal builder - please contact us about this bug."
+                    )
+        if not isinstance(value["period"], int):
+            raise TypeError("ATR stop price period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("ATR stop price period must be > zero")
+        if not isinstance(value["stop_price_ATR_frac"], float) and not isinstance(
+            value["stop_price_ATR_frac"], int
+        ):
+            raise TypeError("ATR stop price fraction must be a number.")
+        return value
 
 
 class PRICE(BaseModel):
     name: str = "PRICE"
-    params: dict = {
-        "price_type": "Close"
-    }  # "High", "Low", or "Close" (always use Adj Close)
+    params: dict = {"price_type": "Close"}  # must be in ["High", "Low", "Close"]
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "ATR"]
 
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["price_type"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Price - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to price signal builder - please contact us about this bug"
+                    )
+        if value["price_type"] not in ["High", "Low", "Close"]:
+            raise ValueError("Price type must be High, Low, or Close.")
+        return value
+
+
 class PRICE_WINDOW(BaseModel):
-    name: str = 'PRICE_WINDOW'
+    name: str = "PRICE_WINDOW"
     params: dict = {
-                "period":30, # Number of days to look back 
-                "max_or_min": 'max', # Either 'max' or 'min' to take over price window 
-                "price_type":"High" #"High", "Low", or "Close" (always use Adj Close)
-                    } 
+        "period": 30,  # Number of days to look back
+        "max_or_min": "max",  # must be in ["max" or "min"]
+        "price_type": "High",  # must be in ["High", "Low", "Close"]
+    }
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]
-    #param period bound >= 2 and < 1000
-    
+    # param period bound >= 2 and < 1000
+
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "max_or_min", "price_type"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build price window - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Price Window builder - please contact us about this bug."
+                    )
+        if not isinstance(value["period"], int):
+            raise TypeError("Price Window period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Price Window period must be > zero.")
+
+        if value["max_or_min"] not in ["max" or "min"]:
+            raise ValueError("Price window max or min must be...max or min.")
+
+        if value["price_type"] not in ["High", "Low", "Close"]:
+            raise ValueError("Price type must be High, Low, or Close.")
+        return value
+
+
 class ATR(BaseModel):
     name: str = "ATR"
     params: dict = {"period": 20, "multiple": 1}
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
-    #param period bound >= 2 and < 1000
-    #param multiple bound by greather than 0.25 to 10
+    # param period bound >= 2 and < 1000
+    # param multiple bound by greather than 0.25 to 10
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period"]
+        key_standard = ["period", "multiple"]
         if len(key_standard) != len(value):
-            raise ValueError("wrong number of parameters used to build ATR")
+            raise ValueError(
+                "Wrong number of parameters used to build ATR - please contact us about this bug."
+            )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to ATR signal builder - please contact us about this bug"
+                        "Wrong parameters fed to ATR signal builder - please contact us about this bug."
                     )
-                elif not isinstance(value[key], int):
-                    raise TypeError("ATR period and multiple must be a number")
-                elif not value[key] > 0:
-                    raise TypeError("ATR period must be greater than zero")
+
+        if not isinstance(value["period"], int):
+            raise TypeError("ATR period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("ATR period must be > zero.")
+
+        if not isinstance(value["multiple"], int) and not isinstance(
+            value["multiple"], float
+        ):
+            raise TypeError("ATR multiple must be a positive number.")
+        elif not value["multiple"] > 0:
+            raise TypeError("ATR multiple must be > zero.")
         return value
+
 
 class ATRP(BaseModel):
     name: str = "ATRP"
     params: dict = {"period": 20, "multiple": 1}
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
-    #param period bound >= 2 and < 1000
-    #param multiple bound by greather than 0.25 to 10
+    # param period bound >= 2 and < 1000
+    # param multiple bound by greather than 0.25 to 10
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period"]
+        key_standard = ["period", "multiple"]
         if len(key_standard) != len(value):
-            raise ValueError("wrong number of parameters used to build ATR")
+            raise ValueError(
+                "Wrong number of parameters used to build ATR - please contact us about this bug."
+            )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to ATRP signal builder - please contact us about this bug"
+                        "Wrong parameters fed to ATRP signal builder - please contact us about this bug."
                     )
-                elif not isinstance(value[key], int):
-                    raise TypeError("ATRP period and multiple must be a number")
-                elif not value[key] > 0:
-                    raise TypeError("ATRP period must be greater than zero")
+        if not isinstance(value["period"], int):
+            raise TypeError("ATRP period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("ATRP period must be > zero")
+
+        if not isinstance(value["multiple"], int) and not isinstance(
+            value["multiple"], float
+        ):
+            raise TypeError("ATRP multiple must be a positive number.")
+        elif not value["multiple"] > 0:
+            raise TypeError("ATRP multiple must be > zero.")
         return value
+
 
 class LEVEL(BaseModel):
     name: str = "LEVEL"
@@ -430,17 +522,21 @@ class LEVEL(BaseModel):
     def param_key_check(cls, value):
         key_standard = ["level"]
         if len(key_standard) != len(value):
-            raise ValueError("wrong number of parameters used to build level")
+            raise ValueError(
+                "wrong number of parameters used to build level - please contact us about this bug."
+            )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to Level signal builder - please contact us about this bug"
+                        "Wrong parameters fed to Level signal builder - please contact us about this bug."
                     )
-                elif not isinstance(value[key], int):
-                    raise TypeError("RSI level must be a number")
+                elif not isinstance(value[key], float) and not isinstance(
+                    value[key], int
+                ):
+                    raise TypeError("Level must be a positive number.")
                 elif not value[key] > 0:
-                    raise TypeError("RSI level input must be greater than zero")
+                    raise TypeError("Level must be > zero.")
         return value
 
 
@@ -450,31 +546,75 @@ class BOOLEAN(BaseModel):
     needs_comp: bool = True
     valid_comps: list = ["PSAR"]
 
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["boolean"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build True/False- please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to True/False signal builder - please contact us about this bug."
+                    )
+                elif not isinstance(value[key], bool):
+                    raise TypeError("True/False must be True... or False")
+        return value
+
 
 class VOLATILITY(BaseModel):
     name: str = "VOLATILITY"
     params: dict = {"period": 252, "multiple": 1}
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]
-    #param period bound >= 2 and < 1000
-    #param multiple bound by greather than 0.25 to 10
+    # param period bound >= 2 and < 1000
+    # param multiple bound by greather than 0.25 to 10
 
-class PSAR(BaseModel):
-    """
-    Parabolic SAR
-    """
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "multiple"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Volatility- please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Volatility signal builder - please contact us about this bug."
+                    )
+        if not isinstance(value["period"], int):
+            raise TypeError("Volatility period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Volatility period must be > zero")
 
-    name: str = "PSAR"
-    params: dict = {
-        "type_indicator": "value",  # Either 'value', 'reversal_toUptrend', 'reversal_toDowntrend'
-        "init_acceleration_factor": 0.02,
-        "acceleration_factor_step": 0.02,
-        "max_acceleration_factor": 0.2,
-        "previous_day": False,  # Whether the PSAR returned is for current day (True) or not (for comparison)
-        "period": 2,  # Number of days to look back to ensure PSAR is in proper range
-    }
-    needs_comp: bool = True
-    valid_comps: list = ["LEVEL", "PSAR", "PRICE", "BOOLEAN"]
+        if not isinstance(value["multiple"], int) and not isinstance(
+            value["multiple"], float
+        ):
+            raise TypeError("Volatility multiple must be a positive number.")
+        elif not value["multiple"] > 0:
+            raise TypeError("Volatility multiple must be > zero.")
+        return value
+
+
+# class PSAR(BaseModel):
+#     """
+#     Parabolic SAR
+#     """
+
+#     name: str = "PSAR"
+#     params: dict = {
+#         "type_indicator": "value",  # Either 'value', 'reversal_toUptrend', 'reversal_toDowntrend'
+#         "init_acceleration_factor": 0.02,
+#         "acceleration_factor_step": 0.02,
+#         "max_acceleration_factor": 0.2,
+#         "previous_day": False,  # Whether the PSAR returned is for current day (True) or not (for comparison)
+#         "period": 2,  # Number of days to look back to ensure PSAR is in proper range
+#     }
+#     needs_comp: bool = True
+#     valid_comps: list = ["LEVEL", "PSAR", "PRICE", "BOOLEAN"]
 
 
 class HURST(BaseModel):
@@ -484,6 +624,33 @@ class HURST(BaseModel):
     valid_comps: list = ["LEVEL"]
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # min lags must be less than max lags and both greater than one
+
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "minLags", "maxLags"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build HURST - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to HURST - please contact us about this bug."
+                    )
+                elif not isinstance(value[key], int):
+                    raise TypeError("HURST parameters must be positive integers.")
+                elif not value[key] > 0:
+                    raise TypeError("HURST inputs must be > zero.")
+        return value
+
+    @validator("params")
+    def fast_slow_comparison(cls, value, values):
+        if value["maxLags"] <= value["minLags"]:
+            raise ValueError(
+                "The minLags period for HURST Signal must be < the maxLags period"
+            )
+        return value
 
 
 "classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
@@ -509,6 +676,43 @@ class VOLATILITYSizing(BaseModel):
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # risk coefficient: (0,10) but not quite 0
     # max_position risk fraction (0,1) do not include 0
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Volatility Sizing - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Volatility Sizing - please contact us about this bug."
+                    )
+
+        #validate period
+        if not isinstance(value["period"], int):
+            raise TypeError("Volatility Sizing period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Volatility Sizing period must be > zero")
+
+        #validaet risk coefficient
+        if not isinstance(value["risk_coefficient"], int) and not isinstance(
+            value["risk_coefficient"], float
+        ):
+            raise TypeError("Volatility Sizing risk coefficient must be a positive number.")
+        elif not value["risk_coefficient"] > 0:
+            raise TypeError("Volatility Sizing risk coefficient must be > zero.")
+
+        #validate max position risk fraction
+        if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
+            value["max_position_risk_frac"], float
+        ):
+            raise TypeError("Volatility Sizing max position risk fraction must be a number.")
+        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
+            raise TypeError("Volatility Sizing max position risk fraction must be > zero and < 1.")
+        
+        return value
 
 
 class ATRSizing(BaseModel):
@@ -517,6 +721,44 @@ class ATRSizing(BaseModel):
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # risk coefficient: (0,10) but not quite 0
     # max_position risk fraction (0,1) do not include 0
+
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build ATR Sizing - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to ATR Sizing - please contact us about this bug."
+                    )
+                    
+        #validate period
+        if not isinstance(value["period"], int):
+            raise TypeError("ATR Sizing period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("ATR Sizing period must be > zero.")
+
+        #validaet risk coefficient
+        if not isinstance(value["risk_coefficient"], int) and not isinstance(
+            value["risk_coefficient"], float
+        ):
+            raise TypeError("ATR Sizing risk coefficient must be a positive number.")
+        elif not value["risk_coefficient"] > 0:
+            raise TypeError("ATR Sizing risk coefficient must be > zero.")
+
+        #validate max position risk fraction
+        if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
+            value["max_position_risk_frac"], float
+        ):
+            raise TypeError("ATR Sizing max position risk fraction must be a number.")
+        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
+            raise TypeError("ATR Sizing max position risk fraction must be > zero and < 1.")
+        
+        return value
 
 class TurtleUnitSizing(BaseModel):
     name: str = "TurtleUnitSizing"
@@ -531,6 +773,48 @@ class TurtleUnitSizing(BaseModel):
     # max_position risk fraction (0,1) do not include 0
     # number of turtle units must be > 0
 
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac", "num_turtle_units"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Turtle Sizing - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Turtle Sizing - please contact us about this bug."
+                    )
+                    
+        #validate period
+        if not isinstance(value["period"], int):
+            raise TypeError("Turtle Sizing period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Turtle Sizing period must be > zero")
+
+        #validaet risk coefficient
+        if not isinstance(value["risk_coefficient"], int) and not isinstance(
+            value["risk_coefficient"], float
+        ):
+            raise TypeError("Turtle Sizing risk coefficient must be a positive number.")
+        elif not value["risk_coefficient"] > 0:
+            raise TypeError("Turtle Sizing risk coefficient must be > zero.")
+
+        #validate max position risk fraction
+        if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
+            value["max_position_risk_frac"], float
+        ):
+            raise TypeError("Turtle Sizing max position risk fraction must be a number.")
+        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
+            raise TypeError("Turtle Sizing max position risk fraction must be > zero and < 1.")
+
+        #validate turtle units
+        if not isinstance(value["num_turtle_units"], int):
+            raise TypeError("Turtle Sizing number of turtle units must be a positive integer.")
+        elif not value["num_turtle_units"] > 0:
+            raise TypeError("Turtle Sizing number of turtle units must be > zero")  
+        return value
 
 class TurtlePyramiding(BaseModel):
     name: str = "TurtlePyramiding"
@@ -545,8 +829,65 @@ class TurtlePyramiding(BaseModel):
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # risk coefficient: (0,10) but not quite 0
     # max_position num entry points integer > 0
-    # delta N fraction: > 0 
+    # delta N fraction: > 0
     # stop price n fraction sort of like ATR stop price -10 to +10
+
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac", "max_num_entry_points", "delta_N_frac", "stop_price_N_frac"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Turtle Pyramid Sizing - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Turtle Pyramid Sizing - please contact us about this bug."
+                    )
+                    
+        #validate period
+        if not isinstance(value["period"], int):
+            raise TypeError("Turtle Pyramid Sizing period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Turtle Pyramid Sizing period must be > zero")
+
+        #validaet risk coefficient
+        if not isinstance(value["risk_coefficient"], int) and not isinstance(
+            value["risk_coefficient"], float
+        ):
+            raise TypeError("Turtle Pyramid Sizing risk coefficient must be a positive number.")
+        elif not value["risk_coefficient"] > 0:
+            raise TypeError("Turtle Pyramid Sizing risk coefficient must be > zero.")
+
+        #validate max position risk fraction
+        if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
+            value["max_position_risk_frac"], float
+        ):
+            raise TypeError("Turtle Pyramid Sizing max position risk fraction must be a number.")
+        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
+            raise TypeError("Turtle Pyramid Sizing max position risk fraction must be > zero and < 1.")
+
+        #validate max num entry points
+        if not isinstance(value["max_num_entry_points"], int):
+            raise TypeError("Turtle Pyramid Sizing max number of entry points must be an integer.")
+        elif not value["max_num_entry_points"] > 0:
+            raise TypeError("Turtle Pyramid Sizing max number of entry points must be > zero")
+
+        #validate delta N fraction
+        if not isinstance(value["delta_N_frac"], int) and not isinstance(
+            value["delta_N_frac"], float
+        ):
+            raise TypeError("Turtle Pyramid Sizing delta N fraction must be a positive number.")
+        elif not value["delta_N_frac"] > 0:
+            raise TypeError("Turtle Pyramid Sizing delta N fraction must be > zero.")
+
+        #validate delta N fraction
+        if not isinstance(value["stop_price_N_frac"], int) and not isinstance(
+            value["stop_price_N_frac"], float
+        ):
+            raise TypeError("Turtle Pyramid Stop Price N fraction must be a number.")
+
 
 "SIGNALS ====================================================="
 
@@ -632,8 +973,8 @@ class StrategySettings(BaseModel):
     # https://pydantic-docs.helpmanual.io/usage/validators/
     @validator("trade_frequency")
     def trade_frequency_check(cls, value):
-        if value < 1:
-            raise ValueError("Trade frequency must be greater than 0.")
+        if not isinstance(value, int) or not value > 0:
+            raise TypeError("Trade frequency must be a positive integer.")
         return value
 
     @validator("instruments")  # make sure this list is not empty
@@ -644,14 +985,10 @@ class StrategySettings(BaseModel):
 
     @validator("rebalance_frequency")  # make sure this list is not empty
     def rebalance_frequency_check(cls, value):
-        if value < 1:
-            raise ValueError("Rebalance frequency must be greater than 0.")
+        if not isinstance(value, int) or not value > 0:
+            raise TypeError("Rebalance frequency must be a positive integer.")
         return value
 
-    # @validator("position_sizing_params") # If params are present
-    # def position_sizing_params(cls, value):
-    #     assert value is not None, "If present, a value is required."
-    #     return value
 
 
 # TODO: I don't particularly like layering so many schemas, but I can't
