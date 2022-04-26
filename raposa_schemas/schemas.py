@@ -244,7 +244,7 @@ class MACD(BaseModel):
     @validator("params")
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
-            raise ValueError("The 1st EMA period for MACD must be < 2nd EMA period")
+            raise ValueError("The 1st EMA period for MACD must be < the 2nd EMA period")
         return value
 
 
@@ -277,7 +277,7 @@ class MACD_SIGNAL(BaseModel):
     @validator("params")
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
-            raise ValueError("MACD fast EMA period must be less than slow EMA period")
+            raise ValueError("The 1st EMA period for MACD Signal must be < the 2nd EMA period")
         return value
 
 
@@ -303,7 +303,7 @@ class RSI(BaseModel):
                 elif not isinstance(value[key], int):
                     raise TypeError("RSI period must be a number")
                 elif not value[key] > 0:
-                    raise TypeError("RSI inputs must be greater than zero")
+                    raise TypeError("RSI period must be > zero")
         return value
 
 
