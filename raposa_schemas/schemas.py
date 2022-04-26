@@ -4,7 +4,7 @@
 # Email: christian@raposa.co
 
 # This file contains data schemas for type checking API inputs.
-
+# test
 """Notes about these schemas
 - Union[] is not a very durable way to check if indicator or comp indicator matches the criteria of another schema
 - Union[] will try to force the field value to work with every option in Union, starting from left to right.
