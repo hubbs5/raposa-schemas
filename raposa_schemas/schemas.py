@@ -973,9 +973,8 @@ class StrategySettings(BaseModel):
     # https://pydantic-docs.helpmanual.io/usage/validators/
     @validator("trade_frequency")
     def trade_frequency_check(cls, value):
-        if value < 1:
-            raise ValueError("Trade frequency must be greater than 0.")
-        return value
+        if not isinstance(value, int) or not value > 1:
+            raise TypeError("Trade frequency must be a positive integer.")
 
     @validator("instruments")  # make sure this list is not empty
     def instruments_check(cls, value):
@@ -985,9 +984,8 @@ class StrategySettings(BaseModel):
 
     @validator("rebalance_frequency")  # make sure this list is not empty
     def rebalance_frequency_check(cls, value):
-        if value < 1:
-            raise ValueError("Rebalance frequency must be greater than 0.")
-        return value
+        if not isinstance(value, int) or not value > 1:
+            raise TypeError("Rebalance frequency must be a positive integer.")
 
     # @validator("position_sizing_params") # If params are present
     # def position_sizing_params(cls, value):
