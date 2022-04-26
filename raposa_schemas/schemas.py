@@ -183,7 +183,7 @@ class SMA(BaseModel):
                         "Wrong parameters fed to SMA signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("SMA period must be an integer.")
+                    raise TypeError("SMA period must be a postive integer.")
                 elif not value[key] > 0:
                     raise TypeError("SMA period must be > zero.")
         return value
@@ -209,7 +209,7 @@ class EMA(BaseModel):
                         "Wrong parameters fed to EMA signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("EMA period must be a number")
+                    raise TypeError("EMA period must be a postive integer")
                 elif not value[key] > 0:
                     raise TypeError("EMA period must be > zero")
         return value
@@ -237,7 +237,7 @@ class MACD(BaseModel):
                         "Wrong parameters fed to MACD - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("MACD periods must be integers.")
+                    raise TypeError("MACD periods must be postive integers.")
                 elif not value[key] > 0:
                     raise TypeError("MACD inputs must be > zero.")
         return value
@@ -272,7 +272,7 @@ class MACD_SIGNAL(BaseModel):
                         "Wrong parameters fed to MACD Signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("MACD Signal periods must be integers.")
+                    raise TypeError("MACD Signal periods must be positive integers.")
                 elif not value[key] > 0:
                     raise TypeError("MACD Signal inputs must be > zero.")
         return value
@@ -308,7 +308,7 @@ class RSI(BaseModel):
                         "Wrong parameters fed to RSI signal builder - please contact us about this bug"
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("RSI period must be an integer.")
+                    raise TypeError("RSI period must be a positive integer.")
                 elif not value[key] > 0:
                     raise TypeError("RSI period must be > zero")
         return value
@@ -368,7 +368,7 @@ class ATR_STOP_PRICE(BaseModel):
                         "Wrong parameters fed to stop signal builder - please contact us about this bug."
                     )
         if not isinstance(value["period"], int):
-            raise TypeError("ATR stop price period must be an integer.")
+            raise TypeError("ATR stop price period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("ATR stop price period must be > zero")
         if not isinstance(value["stop_price_ATR_frac"], float) and not isinstance(
@@ -427,7 +427,7 @@ class PRICE_WINDOW(BaseModel):
                         "Wrong parameters fed to Price Window builder - please contact us about this bug."
                     )
         if not isinstance(value["period"], int):
-            raise TypeError("Price Window period must be an integer.")
+            raise TypeError("Price Window period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("Price Window period must be > zero.")
 
@@ -462,14 +462,14 @@ class ATR(BaseModel):
                     )
 
         if not isinstance(value["period"], int):
-            raise TypeError("ATR period must be an integer.")
+            raise TypeError("ATR period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("ATR period must be > zero.")
 
         if not isinstance(value["multiple"], int) and not isinstance(
             value["multiple"], float
         ):
-            raise TypeError("ATR multiple must be a number.")
+            raise TypeError("ATR multiple must be a positive number.")
         elif not value["multiple"] > 0:
             raise TypeError("ATR multiple must be > zero.")
         return value
@@ -497,14 +497,14 @@ class ATRP(BaseModel):
                         "Wrong parameters fed to ATRP signal builder - please contact us about this bug."
                     )
         if not isinstance(value["period"], int):
-            raise TypeError("ATRP period must be an integer.")
+            raise TypeError("ATRP period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("ATRP period must be > zero")
 
         if not isinstance(value["multiple"], int) and not isinstance(
             value["multiple"], float
         ):
-            raise TypeError("ATRP multiple must be a number.")
+            raise TypeError("ATRP multiple must be a positive number.")
         elif not value["multiple"] > 0:
             raise TypeError("ATRP multiple must be > zero.")
         return value
@@ -534,7 +534,7 @@ class LEVEL(BaseModel):
                 elif not isinstance(value[key], float) and not isinstance(
                     value[key], int
                 ):
-                    raise TypeError("Level must be a number.")
+                    raise TypeError("Level must be a positive number.")
                 elif not value[key] > 0:
                     raise TypeError("Level must be > zero.")
         return value
@@ -586,14 +586,14 @@ class VOLATILITY(BaseModel):
                         "Wrong parameters fed to Volatility signal builder - please contact us about this bug."
                     )
         if not isinstance(value["period"], int):
-            raise TypeError("Volatility period must be an integer.")
+            raise TypeError("Volatility period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("Volatility period must be > zero")
 
         if not isinstance(value["multiple"], int) and not isinstance(
             value["multiple"], float
         ):
-            raise TypeError("Volatility multiple must be a number.")
+            raise TypeError("Volatility multiple must be a positive number.")
         elif not value["multiple"] > 0:
             raise TypeError("Volatility multiple must be > zero.")
         return value
@@ -639,7 +639,7 @@ class HURST(BaseModel):
                         "Wrong parameters fed to HURST - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("HURST parameters must be integers.")
+                    raise TypeError("HURST parameters must be positive integers.")
                 elif not value[key] > 0:
                     raise TypeError("HURST inputs must be > zero.")
         return value
@@ -692,7 +692,7 @@ class VOLATILITYSizing(BaseModel):
 
         #validate period
         if not isinstance(value["period"], int):
-            raise TypeError("Volatility Sizing period must be an integer.")
+            raise TypeError("Volatility Sizing period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("Volatility Sizing period must be > zero")
 
@@ -700,7 +700,7 @@ class VOLATILITYSizing(BaseModel):
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
-            raise TypeError("Volatility Sizing risk coefficient must be a number.")
+            raise TypeError("Volatility Sizing risk coefficient must be a positive number.")
         elif not value["risk_coefficient"] > 0:
             raise TypeError("Volatility Sizing risk coefficient must be > zero.")
 
@@ -738,15 +738,15 @@ class ATRSizing(BaseModel):
                     
         #validate period
         if not isinstance(value["period"], int):
-            raise TypeError("ATR Sizing period must be an integer.")
+            raise TypeError("ATR Sizing period must be a positive integer.")
         elif not value["period"] > 0:
-            raise TypeError("ATR Sizing period must be > zero")
+            raise TypeError("ATR Sizing period must be > zero.")
 
         #validaet risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
-            raise TypeError("ATR Sizing risk coefficient must be a number.")
+            raise TypeError("ATR Sizing risk coefficient must be a positive number.")
         elif not value["risk_coefficient"] > 0:
             raise TypeError("ATR Sizing risk coefficient must be > zero.")
 
@@ -789,7 +789,7 @@ class TurtleUnitSizing(BaseModel):
                     
         #validate period
         if not isinstance(value["period"], int):
-            raise TypeError("Turtle Sizing period must be an integer.")
+            raise TypeError("Turtle Sizing period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("Turtle Sizing period must be > zero")
 
@@ -797,7 +797,7 @@ class TurtleUnitSizing(BaseModel):
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
-            raise TypeError("Turtle Sizing risk coefficient must be a number.")
+            raise TypeError("Turtle Sizing risk coefficient must be a positive number.")
         elif not value["risk_coefficient"] > 0:
             raise TypeError("Turtle Sizing risk coefficient must be > zero.")
 
@@ -811,7 +811,7 @@ class TurtleUnitSizing(BaseModel):
 
         #validate turtle units
         if not isinstance(value["num_turtle_units"], int):
-            raise TypeError("Turtle Sizing number of turtle units must be an integer.")
+            raise TypeError("Turtle Sizing number of turtle units must be a positive integer.")
         elif not value["num_turtle_units"] > 0:
             raise TypeError("Turtle Sizing number of turtle units must be > zero")  
         return value
@@ -848,7 +848,7 @@ class TurtlePyramiding(BaseModel):
                     
         #validate period
         if not isinstance(value["period"], int):
-            raise TypeError("Turtle Pyramid Sizing period must be an integer.")
+            raise TypeError("Turtle Pyramid Sizing period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("Turtle Pyramid Sizing period must be > zero")
 
@@ -856,7 +856,7 @@ class TurtlePyramiding(BaseModel):
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
-            raise TypeError("Turtle Pyramid Sizing risk coefficient must be a number.")
+            raise TypeError("Turtle Pyramid Sizing risk coefficient must be a positive number.")
         elif not value["risk_coefficient"] > 0:
             raise TypeError("Turtle Pyramid Sizing risk coefficient must be > zero.")
 
@@ -878,7 +878,7 @@ class TurtlePyramiding(BaseModel):
         if not isinstance(value["delta_N_frac"], int) and not isinstance(
             value["delta_N_frac"], float
         ):
-            raise TypeError("Turtle Pyramid Sizing delta N fraction must be a number.")
+            raise TypeError("Turtle Pyramid Sizing delta N fraction must be a positive number.")
         elif not value["delta_N_frac"] > 0:
             raise TypeError("Turtle Pyramid Sizing delta N fraction must be > zero.")
 
@@ -888,7 +888,7 @@ class TurtlePyramiding(BaseModel):
         ):
             raise TypeError("Turtle Pyramid Stop Price N fraction must be a number.")
 
-            
+
 "SIGNALS ====================================================="
 
 
