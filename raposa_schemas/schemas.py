@@ -367,14 +367,14 @@ class ATR_STOP_PRICE(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to stop signal builder - please contact us about this bug."
                     )
-            if not isinstance(value["period"], int):
-                raise TypeError("ATR stop price period must be an integer.")
-            elif not value["period"] > 0:
-                raise TypeError("ATR stop price period must be > zero")
-            if not isinstance(value["stop_price_ATR_frac"], float) and not isinstance(
-                value["stop_price_ATR_frac"], int
-            ):
-                raise TypeError("ATR stop price fraction must be a number.")
+        if not isinstance(value["period"], int):
+            raise TypeError("ATR stop price period must be an integer.")
+        elif not value["period"] > 0:
+            raise TypeError("ATR stop price period must be > zero")
+        if not isinstance(value["stop_price_ATR_frac"], float) and not isinstance(
+            value["stop_price_ATR_frac"], int
+        ):
+            raise TypeError("ATR stop price fraction must be a number.")
         return value
 
 
@@ -458,7 +458,7 @@ class ATR(BaseModel):
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to ATR signal builder - please contact us about this bug"
+                        "Wrong parameters fed to ATR signal builder - please contact us about this bug."
                     )
 
         if not isinstance(value["period"], int):
@@ -494,7 +494,7 @@ class ATRP(BaseModel):
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to ATRP signal builder - please contact us about this bug"
+                        "Wrong parameters fed to ATRP signal builder - please contact us about this bug."
                     )
         if not isinstance(value["period"], int):
             raise TypeError("ATRP period must be an integer.")
@@ -551,13 +551,13 @@ class BOOLEAN(BaseModel):
         key_standard = ["boolean"]
         if len(key_standard) != len(value):
             raise ValueError(
-                "Wrong number of parameters used to build True/False- please contact us about this bug"
+                "Wrong number of parameters used to build True/False- please contact us about this bug."
             )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to True/False signal builder - please contact us about this bug"
+                        "Wrong parameters fed to True/False signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], bool):
                     raise TypeError("True/False must be True... or False")
@@ -577,13 +577,13 @@ class VOLATILITY(BaseModel):
         key_standard = ["period", "multiple"]
         if len(key_standard) != len(value):
             raise ValueError(
-                "Wrong number of parameters used to build Volatility- please contact us about this bug"
+                "Wrong number of parameters used to build Volatility- please contact us about this bug."
             )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to Volatility signal builder - please contact us about this bug"
+                        "Wrong parameters fed to Volatility signal builder - please contact us about this bug."
                     )
         if not isinstance(value["period"], int):
             raise TypeError("Volatility period must be an integer.")
@@ -599,22 +599,22 @@ class VOLATILITY(BaseModel):
         return value
 
 
-class PSAR(BaseModel):
-    """
-    Parabolic SAR
-    """
+# class PSAR(BaseModel):
+#     """
+#     Parabolic SAR
+#     """
 
-    name: str = "PSAR"
-    params: dict = {
-        "type_indicator": "value",  # Either 'value', 'reversal_toUptrend', 'reversal_toDowntrend'
-        "init_acceleration_factor": 0.02,
-        "acceleration_factor_step": 0.02,
-        "max_acceleration_factor": 0.2,
-        "previous_day": False,  # Whether the PSAR returned is for current day (True) or not (for comparison)
-        "period": 2,  # Number of days to look back to ensure PSAR is in proper range
-    }
-    needs_comp: bool = True
-    valid_comps: list = ["LEVEL", "PSAR", "PRICE", "BOOLEAN"]
+#     name: str = "PSAR"
+#     params: dict = {
+#         "type_indicator": "value",  # Either 'value', 'reversal_toUptrend', 'reversal_toDowntrend'
+#         "init_acceleration_factor": 0.02,
+#         "acceleration_factor_step": 0.02,
+#         "max_acceleration_factor": 0.2,
+#         "previous_day": False,  # Whether the PSAR returned is for current day (True) or not (for comparison)
+#         "period": 2,  # Number of days to look back to ensure PSAR is in proper range
+#     }
+#     needs_comp: bool = True
+#     valid_comps: list = ["LEVEL", "PSAR", "PRICE", "BOOLEAN"]
 
 
 class HURST(BaseModel):
@@ -630,18 +630,18 @@ class HURST(BaseModel):
         key_standard = ["period", "minLags", "maxLags"]
         if len(key_standard) != len(value):
             raise ValueError(
-                "Wrong number of parameters used to build HURST - please contact us about this bug"
+                "Wrong number of parameters used to build HURST - please contact us about this bug."
             )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to HURST - please contact us about this bug"
+                        "Wrong parameters fed to HURST - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("HURST parameters must be integers")
+                    raise TypeError("HURST parameters must be integers.")
                 elif not value[key] > 0:
-                    raise TypeError("HURST inputs must be > zero")
+                    raise TypeError("HURST inputs must be > zero.")
         return value
 
     @validator("params")
@@ -676,6 +676,43 @@ class VOLATILITYSizing(BaseModel):
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # risk coefficient: (0,10) but not quite 0
     # max_position risk fraction (0,1) do not include 0
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Volatility Sizing - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Volatility Sizing - please contact us about this bug."
+                    )
+
+        #validate period
+        if not isinstance(value["period"], int):
+            raise TypeError("Volatility Sizing period must be an integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Volatility Sizing period must be > zero")
+
+        #validaet risk coefficient
+        if not isinstance(value["risk_coefficient"], int) and not isinstance(
+            value["risk_coefficient"], float
+        ):
+            raise TypeError("Volatility Sizing risk coefficient must be a number.")
+        elif not value["risk_coefficient"] > 0:
+            raise TypeError("Volatility Sizing risk coefficient must be > zero.")
+
+        #validate max position risk fraction
+        if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
+            value["max_position_risk_frac"], float
+        ):
+            raise TypeError("Volatility Sizing max position risk fraction must be a number.")
+        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
+            raise TypeError("Volatility Sizing max position risk fraction must be > zero and < 1.")
+        
+        return value
 
 
 class ATRSizing(BaseModel):
@@ -685,6 +722,43 @@ class ATRSizing(BaseModel):
     # risk coefficient: (0,10) but not quite 0
     # max_position risk fraction (0,1) do not include 0
 
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build ATR Sizing - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to ATR Sizing - please contact us about this bug."
+                    )
+                    
+        #validate period
+        if not isinstance(value["period"], int):
+            raise TypeError("ATR Sizing period must be an integer.")
+        elif not value["period"] > 0:
+            raise TypeError("ATR Sizing period must be > zero")
+
+        #validaet risk coefficient
+        if not isinstance(value["risk_coefficient"], int) and not isinstance(
+            value["risk_coefficient"], float
+        ):
+            raise TypeError("ATR Sizing risk coefficient must be a number.")
+        elif not value["risk_coefficient"] > 0:
+            raise TypeError("ATR Sizing risk coefficient must be > zero.")
+
+        #validate max position risk fraction
+        if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
+            value["max_position_risk_frac"], float
+        ):
+            raise TypeError("ATR Sizing max position risk fraction must be a number.")
+        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
+            raise TypeError("ATR Sizing max position risk fraction must be > zero and < 1.")
+        
+        return value
 
 class TurtleUnitSizing(BaseModel):
     name: str = "TurtleUnitSizing"
@@ -699,6 +773,48 @@ class TurtleUnitSizing(BaseModel):
     # max_position risk fraction (0,1) do not include 0
     # number of turtle units must be > 0
 
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac", "num_turtle_units"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Turtle Sizing - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Turtle Sizing - please contact us about this bug."
+                    )
+                    
+        #validate period
+        if not isinstance(value["period"], int):
+            raise TypeError("Turtle Sizing period must be an integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Turtle Sizing period must be > zero")
+
+        #validaet risk coefficient
+        if not isinstance(value["risk_coefficient"], int) and not isinstance(
+            value["risk_coefficient"], float
+        ):
+            raise TypeError("Turtle Sizing risk coefficient must be a number.")
+        elif not value["risk_coefficient"] > 0:
+            raise TypeError("Turtle Sizing risk coefficient must be > zero.")
+
+        #validate max position risk fraction
+        if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
+            value["max_position_risk_frac"], float
+        ):
+            raise TypeError("Turtle Sizing max position risk fraction must be a number.")
+        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
+            raise TypeError("Turtle Sizing max position risk fraction must be > zero and < 1.")
+
+        #validate turtle units
+        if not isinstance(value["num_turtle_units"], int):
+            raise TypeError("Turtle Sizing number of turtle units must be an integer.")
+        elif not value["num_turtle_units"] > 0:
+            raise TypeError("Turtle Sizing number of turtle units must be > zero")  
+        return value
 
 class TurtlePyramiding(BaseModel):
     name: str = "TurtlePyramiding"
@@ -716,7 +832,63 @@ class TurtlePyramiding(BaseModel):
     # delta N fraction: > 0
     # stop price n fraction sort of like ATR stop price -10 to +10
 
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac", "max_num_entry_points", "delta_N_frac", "stop_price_N_frac"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Turtle Pyramid Sizing - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Turtle Pyramid Sizing - please contact us about this bug."
+                    )
+                    
+        #validate period
+        if not isinstance(value["period"], int):
+            raise TypeError("Turtle Pyramid Sizing period must be an integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Turtle Pyramid Sizing period must be > zero")
 
+        #validaet risk coefficient
+        if not isinstance(value["risk_coefficient"], int) and not isinstance(
+            value["risk_coefficient"], float
+        ):
+            raise TypeError("Turtle Pyramid Sizing risk coefficient must be a number.")
+        elif not value["risk_coefficient"] > 0:
+            raise TypeError("Turtle Pyramid Sizing risk coefficient must be > zero.")
+
+        #validate max position risk fraction
+        if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
+            value["max_position_risk_frac"], float
+        ):
+            raise TypeError("Turtle Pyramid Sizing max position risk fraction must be a number.")
+        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
+            raise TypeError("Turtle Pyramid Sizing max position risk fraction must be > zero and < 1.")
+
+        #validate max num entry points
+        if not isinstance(value["max_num_entry_points"], int):
+            raise TypeError("Turtle Pyramid Sizing max number of entry points must be an integer.")
+        elif not value["max_num_entry_points"] > 0:
+            raise TypeError("Turtle Pyramid Sizing max number of entry points must be > zero")
+
+        #validate delta N fraction
+        if not isinstance(value["delta_N_frac"], int) and not isinstance(
+            value["delta_N_frac"], float
+        ):
+            raise TypeError("Turtle Pyramid Sizing delta N fraction must be a number.")
+        elif not value["delta_N_frac"] > 0:
+            raise TypeError("Turtle Pyramid Sizing delta N fraction must be > zero.")
+
+        #validate delta N fraction
+        if not isinstance(value["stop_price_N_frac"], int) and not isinstance(
+            value["stop_price_N_frac"], float
+        ):
+            raise TypeError("Turtle Pyramid Stop Price N fraction must be a number.")
+
+            
 "SIGNALS ====================================================="
 
 
