@@ -4,7 +4,7 @@
 # Email: christian@raposa.co
 
 # This file contains data schemas for type checking API inputs.
-# test
+
 """Notes about these schemas
 - Union[] is not a very durable way to check if indicator or comp indicator matches the criteria of another schema
 - Union[] will try to force the field value to work with every option in Union, starting from left to right.
@@ -224,22 +224,22 @@ class MACD(BaseModel):
     #param bound >= 2 and < 1000
     # need to enforce that fastEMA period is > =slowEMAperiod
 
-    # @validator("params")
-    # def param_key_check(cls, value):
-    #     key_standard = ["fastEMA_period", "slowEMA_period"]
-    #     if len(key_standard) != len(value):
-    #         raise ValueError("wrong number of parameters used to build MACD")
-    #     else:
-    #         for n, key in enumerate(value.keys()):
-    #             if key != key_standard[n]:
-    #                 raise ValueError(
-    #                     "Wrong parameters fed to MACD signal builder - please contact us about this bug"
-    #                 )
-    #             elif not isinstance(value[key], int):
-    #                 raise TypeError("MACD periods must be numbers")
-    #             elif not value[key] > 0:
-    #                 raise TypeError("MACD inputs must be greater than zero")
-    #     return value
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["fastEMA_period", "slowEMA_period"]
+        if len(key_standard) != len(value):
+            raise ValueError("wrong number of parameters used to build MACD")
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to MACD - please contact us about this bug"
+                    )
+                elif not isinstance(value[key], int):
+                    raise TypeError("MACD periods must be numbers")
+                elif not value[key] > 0:
+                    raise TypeError("MACD inputs must be greater than zero")
+        return value
 
     @validator("params")
     def fast_slow_comparison(cls, value, values):
