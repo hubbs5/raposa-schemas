@@ -244,7 +244,7 @@ class MACD(BaseModel):
     @validator("params")
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
-            raise ValueError("MACD fast EMA period must be less than slow EMA period")
+            raise ValueError("The 1st EMA period for MACD must be < 2nd EMA period")
         return value
 
 
