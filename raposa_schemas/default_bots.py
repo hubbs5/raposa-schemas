@@ -12,11 +12,11 @@ def get_default_bot(bot_number):
             "start_date": "2015-01-01",
             "end_date": "2017-12-31",
             "instruments": ["ABT"],
-            "trade_days": ["mon", "tue"],
+            "trade_days": ["mon", "tue","wed","thu","fri"],
             "trade_frequency": 1,
             "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
             "position_management_strategy": {"name": "EqualAllocation", "params": {}},
-            "rebalance_days": ["fri", "wed", "thu", "tue", "mon"],
+            "rebalance_days": ["mon", "tue","wed","thu","fri"],
             "rebalance_frequency": 1,
         },
         "buy_signals": {
@@ -68,8 +68,8 @@ def get_default_bot(bot_number):
             "start_date": "2018-01-01",
             "end_date": "2019-12-31",
             "instruments": ["GE"],
-            "trade_days": ["mon", "fri"],
-            "trade_frequency": 2,
+            "trade_days": ["mon","tue","wed","thu","fri"],
+            "trade_frequency": 1,
             "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
             "position_management_strategy": {"name": "VOLATILITYSizing",
                                              "params": {
@@ -77,8 +77,8 @@ def get_default_bot(bot_number):
                                                  "risk_coefficient": 1,
                                                  "max_position_risk_frac": 0.04,
                                              }},
-            "rebalance_days": ["fri", "wed", "thu", "tue", "mon"],
-            "rebalance_frequency": 2,
+            "rebalance_days": ["mon","tue","wed","thu","fri"],
+            "rebalance_frequency": 1,
         },
         "buy_signals": {
             "signals": [
@@ -129,8 +129,8 @@ def get_default_bot(bot_number):
             "start_date": "2005-01-01",
             "end_date": "2007-12-31",
             "instruments": ["ATVI"],
-            "trade_days": ["mon", "tue", "wed"],
-            "trade_frequency": 3,
+            "trade_days": ["mon","tue","wed","thu","fri"],
+            "trade_frequency": 1,
             "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
             "position_management_strategy": {"name": "VOLATILITYSizing",
                                              "params": {
@@ -138,8 +138,8 @@ def get_default_bot(bot_number):
                                                  "risk_coefficient": 0.7,
                                                  "max_position_risk_frac": 0.05,
                                              }},
-            "rebalance_days": ["fri", "wed", "thu", "tue", "mon"],
-            "rebalance_frequency": 3,
+            "rebalance_days": ["mon","tue","wed","thu","fri"],
+            "rebalance_frequency": 1,
         },
         "buy_signals": {
             "signals": [
@@ -191,7 +191,7 @@ def get_default_bot(bot_number):
             "end_date": "2019-12-31",
             "instruments": ["AMZN"],
             "trade_days": ["mon", "tue", "wed", "thu", "fri"],
-            "trade_frequency": 4,
+            "trade_frequency": 1,
             "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
             "position_management_strategy": {"name": "VOLATILITYSizing",
                                              "params": {
@@ -199,8 +199,8 @@ def get_default_bot(bot_number):
                                                  "risk_coefficient": 1,
                                                  "max_position_risk_frac": 0.02,
                                              }},
-            "rebalance_days": ["fri", "wed", "thu", "tue", "mon"],
-            "rebalance_frequency": 4,
+            "rebalance_days": ["mon","tue","wed","thu","fri"],
+            "rebalance_frequency": 1,
         },
         "buy_signals": {
             "signals": [
