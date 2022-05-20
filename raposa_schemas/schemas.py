@@ -739,7 +739,7 @@ class BAND_WIDTH(BaseModel):
 
 class MAD(BaseModel): 
     name: str = "MAD"
-    params: dict = {"fast_period": 20, "slow_period":200}
+    params: dict = {"fast_period": 21, "slow_period":200}
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]  
     
