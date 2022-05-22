@@ -329,14 +329,15 @@ class RSI(BaseModel):
 class STOP_PRICE(BaseModel):
     name: str = "STOP_PRICE"
     params: dict = {
-        "percent_change": 10.1
+        "percent_change": 10.1, 
+        "trailing":False, 
     }  # will be positive for stop profit and neg for stop loss
     needs_comp: bool = True  # will always be price
     valid_comps: list = ["PRICE"]
     # param bound > -100% and < 10000%
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["percent_change"]
+        key_standard = ["percent_change", "trailing"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build stop price signal - please contact us about this bug."
@@ -347,7 +348,7 @@ class STOP_PRICE(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to stop signal builder - please contact us about this bug."
                     )
-                elif not isinstance(value[key], float) and not isinstance(
+                elif not isinstance(value["percent_change"], float) and not isinstance(
                     value[key], int
                 ):
                     raise TypeError("Stop price % must be a number.")
@@ -359,6 +360,7 @@ class ATR_STOP_PRICE(BaseModel):
     params: dict = dict(
         period=20,
         # entry_price=10,
+        trailing=False, 
         stop_price_ATR_frac=-2.0,  # positive for stop profit, negative for stop price
     )
     needs_comp: bool = True
@@ -368,7 +370,7 @@ class ATR_STOP_PRICE(BaseModel):
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "stop_price_ATR_frac"]
+        key_standard = ["period", "trailing", "stop_price_ATR_frac"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build ATR stop price - please contact us about this bug."
