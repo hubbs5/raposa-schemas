@@ -330,7 +330,7 @@ class STOP_PRICE(BaseModel):
     name: str = "STOP_PRICE"
     params: dict = {
         "percent_change": 10.1, 
-        "trailing":False, 
+        "trailing":False
     }  # will be positive for stop profit and neg for stop loss
     needs_comp: bool = True  # will always be price
     valid_comps: list = ["PRICE"]
@@ -348,10 +348,12 @@ class STOP_PRICE(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to stop signal builder - please contact us about this bug."
                     )
-                elif not isinstance(value["percent_change"], float) and not isinstance(
-                    value[key], int
-                ):
-                    raise TypeError("Stop price % must be a number.")
+            if not isinstance(value["percent_change"], float) and not isinstance(
+                value["percent_change"], int):
+                    raise TypeError("Stop price % change must be a number.")
+                
+            if not isinstance(value["trailing"], bool):
+                raise TypeError("'Trailing' value must be boolean.")
         return value
 
 
@@ -359,7 +361,6 @@ class ATR_STOP_PRICE(BaseModel):
     name: str = "ATR_STOP_PRICE"
     params: dict = dict(
         period=20,
-        # entry_price=10,
         trailing=False, 
         stop_price_ATR_frac=-2.0,  # positive for stop profit, negative for stop price
     )
@@ -386,9 +387,10 @@ class ATR_STOP_PRICE(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("ATR stop price period must be > zero")
         if not isinstance(value["stop_price_ATR_frac"], float) and not isinstance(
-            value["stop_price_ATR_frac"], int
-        ):
+            value["stop_price_ATR_frac"], int):
             raise TypeError("ATR stop price fraction must be a number.")
+        if not isinstance(value["trailing"], bool):
+                raise TypeError("'Trailing' value must be boolean.")
         return value
 
 
