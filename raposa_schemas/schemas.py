@@ -671,7 +671,9 @@ class HURST(BaseModel):
 
 class BOLLINGER(BaseModel): 
     name: str = "BOLLINGER"
-    params: dict = {"period": 20, "numStdDev": 2, 
+    params: dict = {"period": 20, 
+                    "numStdDevUpper": 2, 
+                    "numStdDevLower": 2, 
                     "price_type":"Typical", # price_type either "High", "Low", "Close", or "Typical"
                     "band": "upper"} #"band" in ["upper", "middle", "lower"]
     needs_comp: bool = True
@@ -679,7 +681,7 @@ class BOLLINGER(BaseModel):
     
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "numStdDev", "price_type", "band"]
+        key_standard = ["period", "numStdDevUpper", "numStdDevLower", "price_type", "band"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build Bollinger Band - please contact us about this bug."
@@ -695,12 +697,19 @@ class BOLLINGER(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("Bollinger Band period must be > zero")
 
-        if not isinstance(value["numStdDev"], int) and not isinstance(
-            value["numStdDev"], float
+        if not isinstance(value["numStdDevUpper"], int) and not isinstance(
+            value["numStdDevUpper"], float
         ):
-            raise TypeError("Bollinger Band numStdDev must be a positive number.")
-        elif not value["period"] > 0:
-            raise TypeError("Bollinger Band numStdDev must be > zero.")
+            raise TypeError("Bollinger Band numStdDevUpper must be a positive number.")
+        elif not value["numStdDevUpper"] > 0:
+            raise TypeError("Bollinger Band numStdDevUpper must be > zero.")
+        if not isinstance(value["numStdDevLower"], int) and not isinstance(
+            value["numStdDevLower"], float
+        ):
+            raise TypeError("Bollinger Band numStdDevLower must be a positive number.")
+        elif not value["numStdDevLower"] > 0:
+            raise TypeError("Bollinger Band numStdDevLower must be > zero.")
+        
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
             raise ValueError("Price type must be High, Low, Close, or Typical.")
         if value["band"] not in ["upper", "middle", "lower"]:
@@ -709,13 +718,16 @@ class BOLLINGER(BaseModel):
     
 class BAND_WIDTH(BaseModel): 
     name: str = "BAND_WIDTH"
-    params: dict = {"period": 20, "numStdDev": 2, "price_type":"Typical"} # price_type either "High", "Low", "Close", or "Typical"
+    params: dict = {"period": 20, 
+                    "numStdDevUpper": 2,
+                    "numStdDevLower": 2, 
+                    "price_type":"Typical"} # price_type either "High", "Low", "Close", or "Typical"
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]  
     
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "numStdDev", "price_type"]
+        key_standard = ["period", "numStdDevUpper", "numStdDevLower", "price_type"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build Band Width - please contact us about this bug."
@@ -731,19 +743,27 @@ class BAND_WIDTH(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("Band Width period must be > zero")
 
-        if not isinstance(value["numStdDev"], int) and not isinstance(
-            value["numStdDev"], float
+        if not isinstance(value["numStdDevUpper"], int) and not isinstance(
+            value["numStdDevUpper"], float
         ):
-            raise TypeError("Band Width numStdDev must be a positive number.")
-        elif not value["period"] > 0:
-            raise TypeError("Band Width numStdDev must be > zero.")
+            raise TypeError("Band Width numStdDevUpper must be a positive number.")
+        elif not value["numStdDevUpper"] > 0:
+            raise TypeError("Band Width numStdDevUpper must be > zero.")
+        if not isinstance(value["numStdDevLower"], int) and not isinstance(
+            value["numStdDevLower"], float
+        ):
+            raise TypeError("Band Width numStdDevLower must be a positive number.")
+        elif not value["numStdDevLower"] > 0:
+            raise TypeError("Band Width numStdDevLower must be > zero.")
+        
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
             raise ValueError("Price type must be High, Low, Close, or Typical.")
         return value
 
 class MAD(BaseModel): 
     name: str = "MAD"
-    params: dict = {"fast_period": 21, "slow_period":200}
+    params: dict = {"fast_period": 21, 
+                    "slow_period":200}
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]  
     
