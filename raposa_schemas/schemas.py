@@ -95,9 +95,9 @@ every_indicator = {
     # "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
-    "Bollinger Bands": "BOLLINGER",
-    "Band Width": "BAND_WIDTH", 
-    "Moving Average Distance": "MAD"
+    # "Bollinger Bands": "BOLLINGER",
+    # "Band Width": "BAND_WIDTH", 
+    # "Moving Average Distance": "MAD"
 }
 
 # buy_indicators and sell_indicators are used in the dropdown menus for buy and sell tabs.
@@ -114,9 +114,9 @@ buy_indicators = {
     "Volatility": "VOLATILITY",
     # "PSAR": "PSAR",
     "HURST": "HURST",
-    "Bollinger Bands": "BOLLINGER",
-    "Band Width": "BAND_WIDTH", 
-    "Moving Average Distance": "MAD"
+    # "Bollinger Bands": "BOLLINGER",
+    # "Band Width": "BAND_WIDTH", 
+    # "Moving Average Distance": "MAD"
 }
 
 sell_indicators = {
@@ -134,9 +134,9 @@ sell_indicators = {
     "Volatility": "VOLATILITY",
     # "PSAR": "PSAR",
     "HURST": "HURST",
-    "Bollinger Bands": "BOLLINGER", 
-    "Band Width": "BAND_WIDTH", 
-    "Moving Average Distance": "MAD"
+    # "Bollinger Bands": "BOLLINGER", 
+    # "Band Width": "BAND_WIDTH", 
+    # "Moving Average Distance": "MAD"
 }
 
 position_sizings = {
@@ -152,8 +152,8 @@ indicators_with_time_params = {
     "SMA": ["period"],  # Indicators that have to look back in time and the param(s)
     # that defines the farthest number of days to look back
     "EMA": ["period"],
-    "MACD": ["slowEMA_period"],
-    "MACD_SIGNAL": ["slowEMA_period", "signalEMA_period"],
+    "MACD": ["slowEMA_period", "fastSMA_period"],
+    "MACD_SIGNAL": ["slowEMA_period", "fastSMA_period," "signalEMA_period"],
     "RSI": ["period"],
     "ATR": ["period"],
     "ATR_STOP_PRICE": ["period"],
@@ -162,7 +162,7 @@ indicators_with_time_params = {
     "PRICE_WINDOW": ["period"],
     "BOLLINGER": ["period"], 
     "BAND_WIDTH": ["period"], 
-    "MAD":["fast_period", "slow_period"]
+    "MAD":["fastSMA_period", "slowSMA_period"]
 }
 
 relations = {"> or =": "geq", "< or =": "leq", ">": "gt", "<": "lt", "=": "eq"}
@@ -229,9 +229,10 @@ class EMA(BaseModel):
 
 class MACD(BaseModel):
     name: str = "MACD"
-    params: dict = {"fastEMA_period": 10, "slowEMA_period": 20}
+    params: dict = {"fastEMA_period": 10, 
+                    "slowEMA_period": 20}
     needs_comp: bool = True
-    valid_comps: list = ["SMA", "EMA", "PRICE"]
+    valid_comps: list = ["SMA", "EMA", "PRICE", "MACD_SIGNAL"]
     # param bound >= 2 and < 1000
     # need to enforce that fastEMA period is > =slowEMAperiod
 
@@ -257,18 +258,17 @@ class MACD(BaseModel):
     @validator("params")
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
-            raise ValueError("The 1st EMA period for MACD must be < the 2nd EMA period")
+            raise ValueError("The fast EMA period for MACD must be < the slow EMA period")
         return value
 
 
 class MACD_SIGNAL(BaseModel):
     name: str = "MACD_SIGNAL"
-    params: dict = {"fastEMA_period": 10, "slowEMA_period": 20, "signalEMA_period": 9}
-
-    needs_comp: bool = False
-    valid_comps: list = None
-    # param bound >= 2 and < 1000
-    # need to enforce that fastEMA period is > =slowEMAperiod
+    params: dict = {"fastEMA_period": 10, 
+                    "slowEMA_period": 20, 
+                    "signalEMA_period": 9}
+    needs_comp: bool = True 
+    valid_comps: list = ["MACD", "SMA", "EMA"]
 
     @validator("params")
     def param_key_check(cls, value):
@@ -284,7 +284,7 @@ class MACD_SIGNAL(BaseModel):
                         "Wrong parameters fed to MACD Signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("MACD Signal periods must be positive integers.")
+                    raise TypeError("MACD Signal inputs must be positive integers.")
                 elif not value[key] > 0:
                     raise TypeError("MACD Signal inputs must be > zero.")
         return value
@@ -293,7 +293,7 @@ class MACD_SIGNAL(BaseModel):
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
             raise ValueError(
-                "The 1st EMA period for MACD Signal must be < the 2nd EMA period"
+                "The fast EMA period for MACD Signal must be < the slow EMA period"
             )
         return value
 
@@ -762,14 +762,14 @@ class BAND_WIDTH(BaseModel):
 
 class MAD(BaseModel): 
     name: str = "MAD"
-    params: dict = {"fast_period": 21, 
-                    "slow_period":200}
+    params: dict = {"fastSMA_period": 21, 
+                    "slowSMA_period":200}
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]  
     
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["fast_period", "slow_period"]
+        key_standard = ["fastSMA_period", "slowSMA_period"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build MAD - please contact us about this bug."
@@ -780,18 +780,18 @@ class MAD(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to price signal builder - please contact us about this bug"
                     )
-        if not isinstance(value["fast_period"], int):
+        if not isinstance(value["fastSMA_period"], int):
             raise TypeError("MAD fast period must be a positive integer.")
-        elif not value["fast_period"] > 0:
+        elif not value["fastSMA_period"] > 0:
             raise TypeError("MAD fast period must be > zero")
         
-        if not isinstance(value["slow_period"], int):
+        if not isinstance(value["slowSMA_period"], int):
             raise TypeError("MAD slow period must be a positive integer.")
-        elif not value["slow_period"] > 0:
+        elif not value["slowSMA_period"] > 0:
             raise TypeError("MAD slow period must be > zero")
         
-        if value["fast_period"] > value["slow_period"]:
-            raise ValueError(f"fast_period must be < slow_period")
+        if value["fastSMA_period"] > value["slowSMA_period"]:
+            raise ValueError(f"fastSMA_period must be < slowSMA_period")
 
         return value
 # Classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
