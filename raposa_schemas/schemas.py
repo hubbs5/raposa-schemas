@@ -53,7 +53,7 @@ How to add a new strategy option to the site that requires parameters (position 
     - update utils_strategy_compilation.py
     
 """
-from typing import List, Union, Optional
+from typing import List, Type, Union, Optional
 from xmlrpc.client import boolean
 from pydantic import BaseModel, validator
 
@@ -95,6 +95,9 @@ every_indicator = {
     # "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
+    # "Bollinger Bands": "BOLLINGER",
+    # "Band Width": "BAND_WIDTH", 
+    # "Moving Average Distance": "MAD"
 }
 
 # buy_indicators and sell_indicators are used in the dropdown menus for buy and sell tabs.
@@ -111,6 +114,9 @@ buy_indicators = {
     "Volatility": "VOLATILITY",
     # "PSAR": "PSAR",
     "HURST": "HURST",
+    # "Bollinger Bands": "BOLLINGER",
+    # "Band Width": "BAND_WIDTH", 
+    # "Moving Average Distance": "MAD"
 }
 
 sell_indicators = {
@@ -128,6 +134,9 @@ sell_indicators = {
     "Volatility": "VOLATILITY",
     # "PSAR": "PSAR",
     "HURST": "HURST",
+    # "Bollinger Bands": "BOLLINGER", 
+    # "Band Width": "BAND_WIDTH", 
+    # "Moving Average Distance": "MAD"
 }
 
 position_sizings = {
@@ -143,14 +152,17 @@ indicators_with_time_params = {
     "SMA": ["period"],  # Indicators that have to look back in time and the param(s)
     # that defines the farthest number of days to look back
     "EMA": ["period"],
-    "MACD": ["slowEMA_period"],
-    "MACD_SIGNAL": ["slowEMA_period", "signalEMA_period"],
+    "MACD": ["slowEMA_period", "fastSMA_period"],
+    "MACD_SIGNAL": ["slowEMA_period", "fastSMA_period," "signalEMA_period"],
     "RSI": ["period"],
     "ATR": ["period"],
     "ATR_STOP_PRICE": ["period"],
     "VOLATILITY": ["period"],
     "PSAR": ["period"],
     "PRICE_WINDOW": ["period"],
+    "BOLLINGER": ["period"], 
+    "BAND_WIDTH": ["period"], 
+    "MAD":["fastSMA_period", "slowSMA_period"]
 }
 
 relations = {"> or =": "geq", "< or =": "leq", ">": "gt", "<": "lt", "=": "eq"}
@@ -217,9 +229,10 @@ class EMA(BaseModel):
 
 class MACD(BaseModel):
     name: str = "MACD"
-    params: dict = {"fastEMA_period": 10, "slowEMA_period": 20}
+    params: dict = {"fastEMA_period": 10, 
+                    "slowEMA_period": 20}
     needs_comp: bool = True
-    valid_comps: list = ["SMA", "EMA", "PRICE"]
+    valid_comps: list = ["SMA", "EMA", "PRICE", "MACD_SIGNAL"]
     # param bound >= 2 and < 1000
     # need to enforce that fastEMA period is > =slowEMAperiod
 
@@ -245,18 +258,17 @@ class MACD(BaseModel):
     @validator("params")
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
-            raise ValueError("The 1st EMA period for MACD must be < the 2nd EMA period")
+            raise ValueError("The fast EMA period for MACD must be < the slow EMA period")
         return value
 
 
 class MACD_SIGNAL(BaseModel):
     name: str = "MACD_SIGNAL"
-    params: dict = {"fastEMA_period": 10, "slowEMA_period": 20, "signalEMA_period": 9}
-
-    needs_comp: bool = False
-    valid_comps: list = None
-    # param bound >= 2 and < 1000
-    # need to enforce that fastEMA period is > =slowEMAperiod
+    params: dict = {"fastEMA_period": 10, 
+                    "slowEMA_period": 20, 
+                    "signalEMA_period": 9}
+    needs_comp: bool = True 
+    valid_comps: list = ["MACD", "SMA", "EMA"]
 
     @validator("params")
     def param_key_check(cls, value):
@@ -272,7 +284,7 @@ class MACD_SIGNAL(BaseModel):
                         "Wrong parameters fed to MACD Signal builder - please contact us about this bug."
                     )
                 elif not isinstance(value[key], int):
-                    raise TypeError("MACD Signal periods must be positive integers.")
+                    raise TypeError("MACD Signal inputs must be positive integers.")
                 elif not value[key] > 0:
                     raise TypeError("MACD Signal inputs must be > zero.")
         return value
@@ -281,7 +293,7 @@ class MACD_SIGNAL(BaseModel):
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
             raise ValueError(
-                "The 1st EMA period for MACD Signal must be < the 2nd EMA period"
+                "The fast EMA period for MACD Signal must be < the slow EMA period"
             )
         return value
 
@@ -317,14 +329,15 @@ class RSI(BaseModel):
 class STOP_PRICE(BaseModel):
     name: str = "STOP_PRICE"
     params: dict = {
-        "percent_change": 10.1
+        "percent_change": 10.1, 
+        "trailing":False
     }  # will be positive for stop profit and neg for stop loss
     needs_comp: bool = True  # will always be price
     valid_comps: list = ["PRICE"]
     # param bound > -100% and < 10000%
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["percent_change"]
+        key_standard = ["percent_change", "trailing"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build stop price signal - please contact us about this bug."
@@ -335,10 +348,12 @@ class STOP_PRICE(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to stop signal builder - please contact us about this bug."
                     )
-                elif not isinstance(value[key], float) and not isinstance(
-                    value[key], int
-                ):
-                    raise TypeError("Stop price % must be a number.")
+            if not isinstance(value["percent_change"], float) and not isinstance(
+                value["percent_change"], int):
+                    raise TypeError("Stop price % change must be a number.")
+                
+            if not isinstance(value["trailing"], bool):
+                raise TypeError("'Trailing' value must be boolean.")
         return value
 
 
@@ -346,7 +361,7 @@ class ATR_STOP_PRICE(BaseModel):
     name: str = "ATR_STOP_PRICE"
     params: dict = dict(
         period=20,
-        # entry_price=10,
+        trailing=False, 
         stop_price_ATR_frac=-2.0,  # positive for stop profit, negative for stop price
     )
     needs_comp: bool = True
@@ -356,7 +371,7 @@ class ATR_STOP_PRICE(BaseModel):
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "stop_price_ATR_frac"]
+        key_standard = ["period", "trailing", "stop_price_ATR_frac"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build ATR stop price - please contact us about this bug."
@@ -372,15 +387,16 @@ class ATR_STOP_PRICE(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("ATR stop price period must be > zero")
         if not isinstance(value["stop_price_ATR_frac"], float) and not isinstance(
-            value["stop_price_ATR_frac"], int
-        ):
+            value["stop_price_ATR_frac"], int):
             raise TypeError("ATR stop price fraction must be a number.")
+        if not isinstance(value["trailing"], bool):
+                raise TypeError("'Trailing' value must be boolean.")
         return value
 
 
 class PRICE(BaseModel):
     name: str = "PRICE"
-    params: dict = {"price_type": "Close"}  # must be in ["High", "Low", "Close"]
+    params: dict = {"price_type": "Close"}  # must be in ["High", "Low", "Close", or "Typical"]
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "ATR"]
 
@@ -397,8 +413,8 @@ class PRICE(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to price signal builder - please contact us about this bug"
                     )
-        if value["price_type"] not in ["High", "Low", "Close"]:
-            raise ValueError("Price type must be High, Low, or Close.")
+        if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
+            raise ValueError("Price type must be High, Low, Close, or Typical.")
         return value
 
 
@@ -407,7 +423,7 @@ class PRICE_WINDOW(BaseModel):
     params: dict = {
         "period": 30,  # Number of days to look back
         "max_or_min": "max",  # must be in ["max" or "min"]
-        "price_type": "High",  # must be in ["High", "Low", "Close"]
+        "price_type": "High",  # must be in ["High", "Low", "Close", "Typical"]
     }
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]
@@ -434,8 +450,8 @@ class PRICE_WINDOW(BaseModel):
         if value["max_or_min"] not in ["max" or "min"]:
             raise ValueError("Price window max or min must be...max or min.")
 
-        if value["price_type"] not in ["High", "Low", "Close"]:
-            raise ValueError("Price type must be High, Low, or Close.")
+        if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
+            raise ValueError("Price type must be High, Low, Close, or Typical.")
         return value
 
 
@@ -653,7 +669,132 @@ class HURST(BaseModel):
         return value
 
 
-"classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
+class BOLLINGER(BaseModel): 
+    name: str = "BOLLINGER"
+    params: dict = {"period": 20, 
+                    "numStdDevUpper": 2, 
+                    "numStdDevLower": 2, 
+                    "price_type":"Typical", # price_type either "High", "Low", "Close", or "Typical"
+                    "band": "upper"} #"band" in ["upper", "middle", "lower"]
+    needs_comp: bool = True
+    valid_comps: list = ["PRICE", "LEVEL"]
+    
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "numStdDevUpper", "numStdDevLower", "price_type", "band"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Bollinger Band - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to price signal builder - please contact us about this bug"
+                    )
+        if not isinstance(value["period"], int):
+            raise TypeError("Bollinger Band period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Bollinger Band period must be > zero")
+
+        if not isinstance(value["numStdDevUpper"], int) and not isinstance(
+            value["numStdDevUpper"], float
+        ):
+            raise TypeError("Bollinger Band numStdDevUpper must be a positive number.")
+        elif not value["numStdDevUpper"] > 0:
+            raise TypeError("Bollinger Band numStdDevUpper must be > zero.")
+        if not isinstance(value["numStdDevLower"], int) and not isinstance(
+            value["numStdDevLower"], float
+        ):
+            raise TypeError("Bollinger Band numStdDevLower must be a positive number.")
+        elif not value["numStdDevLower"] > 0:
+            raise TypeError("Bollinger Band numStdDevLower must be > zero.")
+        
+        if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
+            raise ValueError("Price type must be High, Low, Close, or Typical.")
+        if value["band"] not in ["upper", "middle", "lower"]:
+            raise ValueError("Band must be 'upper', 'middle', or 'lower'.")
+        return value
+    
+class BAND_WIDTH(BaseModel): 
+    name: str = "BAND_WIDTH"
+    params: dict = {"period": 20, 
+                    "numStdDevUpper": 2,
+                    "numStdDevLower": 2, 
+                    "price_type":"Typical"} # price_type either "High", "Low", "Close", or "Typical"
+    needs_comp: bool = True
+    valid_comps: list = ["PRICE", "LEVEL"]  
+    
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "numStdDevUpper", "numStdDevLower", "price_type"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Band Width - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to price signal builder - please contact us about this bug"
+                    )
+        if not isinstance(value["period"], int):
+            raise TypeError("Band Width period must be a positive integer.")
+        elif not value["period"] > 0:
+            raise TypeError("Band Width period must be > zero")
+
+        if not isinstance(value["numStdDevUpper"], int) and not isinstance(
+            value["numStdDevUpper"], float
+        ):
+            raise TypeError("Band Width numStdDevUpper must be a positive number.")
+        elif not value["numStdDevUpper"] > 0:
+            raise TypeError("Band Width numStdDevUpper must be > zero.")
+        if not isinstance(value["numStdDevLower"], int) and not isinstance(
+            value["numStdDevLower"], float
+        ):
+            raise TypeError("Band Width numStdDevLower must be a positive number.")
+        elif not value["numStdDevLower"] > 0:
+            raise TypeError("Band Width numStdDevLower must be > zero.")
+        
+        if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
+            raise ValueError("Price type must be High, Low, Close, or Typical.")
+        return value
+
+class MAD(BaseModel): 
+    name: str = "MAD"
+    params: dict = {"fastSMA_period": 21, 
+                    "slowSMA_period":200}
+    needs_comp: bool = True
+    valid_comps: list = ["PRICE", "LEVEL"]  
+    
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["fastSMA_period", "slowSMA_period"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build MAD - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to price signal builder - please contact us about this bug"
+                    )
+        if not isinstance(value["fastSMA_period"], int):
+            raise TypeError("MAD fast period must be a positive integer.")
+        elif not value["fastSMA_period"] > 0:
+            raise TypeError("MAD fast period must be > zero")
+        
+        if not isinstance(value["slowSMA_period"], int):
+            raise TypeError("MAD slow period must be a positive integer.")
+        elif not value["slowSMA_period"] > 0:
+            raise TypeError("MAD slow period must be > zero")
+        
+        if value["fastSMA_period"] > value["slowSMA_period"]:
+            raise ValueError(f"fastSMA_period must be < slowSMA_period")
+
+        return value
+# Classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
 
 
 class NoRiskManagement(BaseModel):
@@ -889,7 +1030,7 @@ class TurtlePyramiding(BaseModel):
             raise TypeError("Turtle Pyramid Stop Price N fraction must be a number.")
 
 
-"SIGNALS ====================================================="
+# SIGNALS =====================================================
 
 
 class Signal(BaseModel):
@@ -924,7 +1065,7 @@ class Signal(BaseModel):
     # add check to make sure the dict for indicator and dict for comp_indicator have the same keys as the signal
 
 
-"STRATEGY =============================================="
+#  STRATEGY ==============================================
 
 
 class BuySignals(BaseModel):
