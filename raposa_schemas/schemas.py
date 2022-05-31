@@ -361,8 +361,8 @@ class ATR_STOP_PRICE(BaseModel):
     name: str = "ATR_STOP_PRICE"
     params: dict = dict(
         period=20,
-        trailing=False, 
         stop_price_ATR_frac=-2.0,  # positive for stop profit, negative for stop price
+        trailing=False, 
     )
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
@@ -371,7 +371,7 @@ class ATR_STOP_PRICE(BaseModel):
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "trailing", "stop_price_ATR_frac"]
+        key_standard = ["period",  "stop_price_ATR_frac","trailing"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build ATR stop price - please contact us about this bug."
