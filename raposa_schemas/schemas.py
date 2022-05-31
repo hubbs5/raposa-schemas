@@ -1103,12 +1103,12 @@ class StrategySettings(BaseModel):
     start_date: str = "2010-01-01"
     end_date: str = "2015-12-31"
     instruments: List[str]
-    trade_days: List[str] = ["mon", "wed", "fri"]
+    trade_days: List[str] = ["mon", "tue", "wed", "thu", "fri"]
     trade_frequency: int = 1
     position_sizing_strategy: dict = {"name": "EqualAllocation", "params": {}}
     position_management_strategy: dict = {"name": "EqualAllocation", "params": {}}
-    rebalance_days: List[str] = ["wed"]
-    rebalance_frequency: int = 4
+    rebalance_days: List[str] = ["mon", "tue", "wed", "thu", "fri"]
+    rebalance_frequency: int = 1
 
     # TODO: Add validators for instruments, trade days, etc.
     # https://pydantic-docs.helpmanual.io/usage/validators/
@@ -1122,12 +1122,20 @@ class StrategySettings(BaseModel):
     def instruments_check(cls, value):
         if len(value) == 0:
             raise ValueError("Please select at least one instrument")
+        elif len(value) >= max_instruments:
+            raise ValueError(f"You have selected more stocks than our interns can process. A Maximum of {max_instruments} instruments can be selected for now.")
         return value
 
     @validator("rebalance_frequency")  # make sure this list is not empty
     def rebalance_frequency_check(cls, value):
         if not isinstance(value, int) or not value > 0:
             raise TypeError("Rebalance frequency must be a positive integer.")
+        return value
+        
+    @validator("trade_frequency")  # make sure this list is not empty
+    def rebalance_frequency_check(cls, value):
+        if not isinstance(value, int) or not value > 0:
+            raise TypeError("Trade frequency must be a positive integer.")
         return value
 
 
