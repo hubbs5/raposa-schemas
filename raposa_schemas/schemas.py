@@ -152,8 +152,8 @@ indicators_with_time_params = {
     "SMA": ["period"],  # Indicators that have to look back in time and the param(s)
     # that defines the farthest number of days to look back
     "EMA": ["period"],
-    "MACD": ["slowEMA_period", "fastSMA_period"],
-    "MACD_SIGNAL": ["slowEMA_period", "fastSMA_period," "signalEMA_period"],
+    "MACD": ["slowEMA_period", "fastEMA_period"],
+    "MACD_SIGNAL": ["slowEMA_period", "fastEMA_period," "signalEMA_period"],
     "RSI": ["period"],
     "ATR": ["period"],
     "ATR_STOP_PRICE": ["period"],
