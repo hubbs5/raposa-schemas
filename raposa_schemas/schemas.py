@@ -1132,11 +1132,6 @@ class StrategySettings(BaseModel):
             raise TypeError("Rebalance frequency must be a positive integer.")
         return value
         
-    @validator("trade_frequency")  # make sure this list is not empty
-    def rebalance_frequency_check(cls, value):
-        if not isinstance(value, int) or not value > 0:
-            raise TypeError("Trade frequency must be a positive integer.")
-        return value
 
 
 
