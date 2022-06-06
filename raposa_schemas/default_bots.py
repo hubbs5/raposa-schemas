@@ -131,20 +131,14 @@ def get_default_bot(bot_number):
     preset3 = {
         "strategy_settings": {
             "account_size": 10000.0,
+            "init_date": "2004-10-11",
             "start_date": "2005-01-01",
             "end_date": "2007-12-31",
-            "instruments": ["ATVI"],
+            "instruments": ["JPM"],
             "trade_days": ["mon", "tue", "wed", "thu", "fri"],
             "trade_frequency": 1,
             "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
-            "position_management_strategy": {
-                "name": "VOLATILITYSizing",
-                "params": {
-                    "period": 90,
-                    "risk_coefficient": 0.7,
-                    "max_position_risk_frac": 0.05,
-                },
-            },
+            "position_management_strategy": {"name": "EqualAllocation", "params": {}},
             "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
             "rebalance_frequency": 1,
         },
@@ -172,18 +166,18 @@ def get_default_bot(bot_number):
             "signals": [
                 {
                     "indicator": {
-                        "name": "SMA",
-                        "params": {"period": 10},
+                        "name": "HURST",
+                        "params": {"period": 10, "minLags": 2, "maxLags": 20},
                         "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
+                        "valid_comps": ["LEVEL"],
                     },
                     "comp_indicator": {
-                        "name": "EMA",
-                        "params": {"period": 50},
-                        "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
+                        "name": "LEVEL",
+                        "params": {"level": 30},
+                        "needs_comp": False,
+                        "valid_comps": None,
                     },
-                    "rel": "geq",
+                    "rel": "lt",
                     "short": False,
                 }
             ]
@@ -194,6 +188,7 @@ def get_default_bot(bot_number):
     preset4 = {
         "strategy_settings": {
             "account_size": 10000.0,
+            "init_date": "2016-11-21",
             "start_date": "2017-01-01",
             "end_date": "2019-12-31",
             "instruments": ["AMZN"],
@@ -215,18 +210,18 @@ def get_default_bot(bot_number):
             "signals": [
                 {
                     "indicator": {
-                        "name": "SMA",
-                        "params": {"period": 30},
+                        "name": "ATRP",
+                        "params": {"period": 25, "multiple": 1},
                         "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
+                        "valid_comps": ["PRICE"],
                     },
                     "comp_indicator": {
-                        "name": "EMA",
-                        "params": {"period": 50},
+                        "name": "PRICE",
+                        "params": {"price_type": "Low"},
                         "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
+                        "valid_comps": ["SMA", "EMA", "MACD", "ATR"],
                     },
-                    "rel": "geq",
+                    "rel": "lt",
                     "short": False,
                 }
             ]
@@ -235,18 +230,18 @@ def get_default_bot(bot_number):
             "signals": [
                 {
                     "indicator": {
-                        "name": "SMA",
-                        "params": {"period": 60},
+                        "name": "RSI",
+                        "params": {"period": 25},
                         "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
+                        "valid_comps": ["LEVEL"],
                     },
                     "comp_indicator": {
-                        "name": "EMA",
-                        "params": {"period": 50},
-                        "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
+                        "name": "LEVEL",
+                        "params": {"level": 30},
+                        "needs_comp": False,
+                        "valid_comps": None,
                     },
-                    "rel": "geq",
+                    "rel": "lt",
                     "short": False,
                 }
             ]
