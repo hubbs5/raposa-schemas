@@ -53,6 +53,14 @@ How to add a new strategy option to the site that requires parameters (position 
     - update utils_strategy_compilation.py
     
 """
+
+'''
+When changing a param dict, the following files must be updated:
+1) raposa-website\apps\dash_strategy_builder\dash_app_utils\position_sizing_divs.py
+2) raposa-website\apps\dash_strategy_builder\dash_app_utils\indicator_divs.py
+3) POSSIBLY raposa-website\apps\dash_strategy_builder\dash_app_utils\utils_strategy_compilation.py
+4) raposa-website\apps\dash_bot_garage\dash_app_utils\utils.py
+'''
 from typing import List, Type, Union, Optional
 from xmlrpc.client import boolean
 from pydantic import BaseModel, validator
