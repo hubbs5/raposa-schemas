@@ -8,47 +8,17 @@ Currently hard-coded. But we could maek it more dynamic.
 
 def get_default_bot(bot_number):
     preset1 = {
-        "strategy_settings": {
-            "account_size": 10000.0,
-            "init_date": "2014-11-12",
-            "start_date": "2015-01-01",
-            "end_date": "2017-12-31",
-            "instruments": ["TSLA"],
-            "trade_days": ["mon", "tue", "wed", "thu", "fri"],
-            "trade_frequency": 1,
-            "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
-            "position_management_strategy": {"name": "EqualAllocation", "params": {}},
-            "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
-            "rebalance_frequency": 1,
-        },
+        "email": "test@test.com",
         "buy_signals": {
             "signals": [
                 {
-                    "indicator": {
-                        "name": "SMA",
-                        "params": {"period": 30},
-                        "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
-                    },
-                    "comp_indicator": {
-                        "name": "PRICE",
-                        "params": {"price_type": "High"},
-                        "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "ATR"],
-                    },
                     "rel": "leq",
                     "short": False,
-                }
-            ]
-        },
-        "sell_signals": {
-            "signals": [
-                {
                     "indicator": {
-                        "name": "STOP_PRICE",
-                        "params": {"percent_change": 3, "trailing": False},
+                        "name": "EMA",
+                        "params": {"period": 3},
                         "needs_comp": True,
-                        "valid_comps": ["PRICE"],
+                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
                     },
                     "comp_indicator": {
                         "name": "PRICE",
@@ -56,12 +26,52 @@ def get_default_bot(bot_number):
                         "needs_comp": True,
                         "valid_comps": ["SMA", "EMA", "MACD", "ATR"],
                     },
-                    "rel": "eq",
-                    "short": False,
                 }
             ]
         },
-        "email": "test@test.com",
+        "sell_signals": {
+            "signals": [
+                {
+                    "rel": "geq",
+                    "short": False,
+                    "indicator": {
+                        "name": "EMA",
+                        "params": {"period": 5},
+                        "needs_comp": True,
+                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
+                    },
+                    "comp_indicator": {
+                        "name": "PRICE",
+                        "params": {"price_type": "Close"},
+                        "needs_comp": True,
+                        "valid_comps": ["SMA", "EMA", "MACD", "ATR"],
+                    },
+                }
+            ]
+        },
+        "strategy_settings": {
+            "end_date": "2019-12-31",
+            "init_date": "",
+            "start_date": "2016-01-01",
+            "trade_days": ["mon", "tue", "wed", "thu", "fri"],
+            "instruments": ["TSLA"],
+            "account_size": 10000,
+            "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
+            "trade_frequency": 1,
+            "rebalance_frequency": 1,
+            "position_sizing_strategy": {
+                "name": "TurtlePyramiding",
+                "params": {
+                    "period": 10,
+                    "delta_N_frac": 0.5,
+                    "risk_coefficient": 0.8,
+                    "stop_price_N_frac": -8,
+                    "max_num_entry_points": 10,
+                    "max_position_risk_frac": 0.5,
+                },
+            },
+            "position_management_strategy": {"name": "EqualAllocation", "params": {}},
+        },
     }
 
     preset2 = {
