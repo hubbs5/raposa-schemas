@@ -79,19 +79,19 @@ def get_default_bot(bot_number):
         "buy_signals": {
             "signals": [
                 {
-                    "rel": "leq",
+                    "rel": "geq",
                     "short": False,
                     "indicator": {
-                        "name": "EMA",
-                        "params": {"period": 3},
-                        "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
-                    },
-                    "comp_indicator": {
                         "name": "PRICE",
                         "params": {"price_type": "Close"},
                         "needs_comp": True,
                         "valid_comps": ["SMA", "EMA", "MACD", "ATR"],
+                    },
+                    "comp_indicator": {
+                        "name": "SMA",
+                        "params": {"period": 20},
+                        "needs_comp": True,
+                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
                     },
                 }
             ]
@@ -99,45 +99,42 @@ def get_default_bot(bot_number):
         "sell_signals": {
             "signals": [
                 {
-                    "rel": "geq",
+                    "rel": "leq",
                     "short": False,
                     "indicator": {
-                        "name": "EMA",
-                        "params": {"period": 5},
-                        "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
-                    },
-                    "comp_indicator": {
                         "name": "PRICE",
                         "params": {"price_type": "Close"},
                         "needs_comp": True,
                         "valid_comps": ["SMA", "EMA", "MACD", "ATR"],
                     },
+                    "comp_indicator": {
+                        "name": "SMA",
+                        "params": {"period": 100},
+                        "needs_comp": True,
+                        "valid_comps": ["SMA", "EMA", "MACD", "PRICE"],
+                    },
                 }
             ]
         },
         "strategy_settings": {
-            "end_date": "2019-12-31",
+            "end_date": "2020-12-31",
             "init_date": "",
-            "start_date": "2016-01-01",
+            "start_date": "2017-01-01",
             "trade_days": ["mon", "tue", "wed", "thu", "fri"],
-            "instruments": ["TSLA"],
-            "account_size": 10000,
+            "instruments": ["ABT", "ABBV", "HCA"],
+            "account_size": 30000,
             "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
             "trade_frequency": 1,
             "rebalance_frequency": 1,
-            "position_sizing_strategy": {
-                "name": "TurtlePyramiding",
+            "position_sizing_strategy": {"name": "NoRiskManagement", "params": {}},
+            "position_management_strategy": {
+                "name": "ATRSizing",
                 "params": {
-                    "period": 10,
-                    "delta_N_frac": 0.5,
-                    "risk_coefficient": 0.8,
-                    "stop_price_N_frac": -8,
-                    "max_num_entry_points": 10,
-                    "max_position_risk_frac": 0.5,
+                    "period": 14,
+                    "risk_coefficient": 0.9,
+                    "max_position_risk_frac": 0.25,
                 },
             },
-            "position_management_strategy": {"name": "EqualAllocation", "params": {}},
         },
     }
 
