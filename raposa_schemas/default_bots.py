@@ -52,10 +52,10 @@ def get_default_bot(bot_number):
         "strategy_settings": {
             "end_date": "2019-12-31",
             "init_date": "",
-            "start_date": "2016-01-01",
+            "start_date": "2018-01-01",
             "trade_days": ["mon", "tue", "wed", "thu", "fri"],
             "instruments": ["TSLA"],
-            "account_size": 10000,
+            "account_size": 5000,
             "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
             "trade_frequency": 1,
             "rebalance_frequency": 1,
@@ -73,7 +73,6 @@ def get_default_bot(bot_number):
             "position_management_strategy": {"name": "EqualAllocation", "params": {}},
         },
     }
-
     preset2 = {
         "email": "test@test.com",
         "buy_signals": {
