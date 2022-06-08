@@ -9,6 +9,7 @@ def get_default_bot(bot_number):
     preset1 = {
         "strategy_settings": {
             "account_size": 10000.0,
+            'init_date': '',
             "start_date": "2015-01-01",
             "end_date": "2017-12-31",
             "instruments": ["ABT"],
@@ -65,6 +66,7 @@ def get_default_bot(bot_number):
     preset2 = {
         "strategy_settings": {
             "account_size": 10000.0,
+            'init_date': '',
             "start_date": "2018-01-01",
             "end_date": "2019-12-31",
             "instruments": ["GE"],
@@ -126,6 +128,7 @@ def get_default_bot(bot_number):
     preset3 = {
         "strategy_settings": {
             "account_size": 10000.0,
+            'init_date': '',
             "start_date": "2005-01-01",
             "end_date": "2007-12-31",
             "instruments": ["ATVI"],
@@ -187,6 +190,7 @@ def get_default_bot(bot_number):
     preset4 = {
         "strategy_settings": {
             "account_size": 10000.0,
+            'init_date': '',
             "start_date": "2017-01-01",
             "end_date": "2019-12-31",
             "instruments": ["AMZN"],
