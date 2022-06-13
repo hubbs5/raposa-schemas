@@ -59,7 +59,8 @@ def get_default_bot(bot_number):
             "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
             "trade_frequency": 1,
             "rebalance_frequency": 1,
-            "position_sizing_strategy": {
+            "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
+            "position_management_strategy": {
                 "name": "TurtlePyramiding",
                 "params": {
                     "period": 10,
@@ -70,7 +71,6 @@ def get_default_bot(bot_number):
                     "max_position_risk_frac": 0.5,
                 },
             },
-            "position_management_strategy": {"name": "EqualAllocation", "params": {}},
         },
     }
     preset2 = {
@@ -262,7 +262,8 @@ def get_default_bot(bot_number):
             "rebalance_days": ["tue", "wed", "thu"],
             "trade_frequency": 1,
             "rebalance_frequency": 3,
-            "position_sizing_strategy": {
+            "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
+            "position_management_strategy": {
                 "name": "TurtlePyramiding",
                 "params": {
                     "period": 20,
@@ -273,7 +274,6 @@ def get_default_bot(bot_number):
                     "max_position_risk_frac": 0.16,
                 },
             },
-            "position_management_strategy": {"name": "EqualAllocation", "params": {}},
         },
     }
     if bot_number == 1:
