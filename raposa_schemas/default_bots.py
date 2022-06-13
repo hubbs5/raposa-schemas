@@ -55,7 +55,7 @@ def get_default_bot(bot_number):
             "start_date": "2016-01-01",
             "trade_days": ["mon", "tue", "wed", "thu", "fri"],
             "instruments": ["TSLA"],
-            "account_size": 100000,
+            "account_size": 5000,
             "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
             "trade_frequency": 1,
             "rebalance_frequency": 1,
