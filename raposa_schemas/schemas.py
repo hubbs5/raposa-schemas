@@ -90,7 +90,7 @@ every_indicator = {
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
     "ATR": "ATR",
-    "ATRP": "ATRP",
+    "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
     # "PSAR": "PSAR",
     "HURST": "HURST",
@@ -110,7 +110,7 @@ buy_indicators = {
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
     "ATR": "ATR",
-    "ATRP": "ATRP",
+    "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
     # "PSAR": "PSAR",
     "HURST": "HURST",
@@ -130,7 +130,7 @@ sell_indicators = {
     "MACD Signal": "MACD_SIGNAL",
     "RSI": "RSI",
     "ATR": "ATR",
-    "ATRP": "ATRP",
+    "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
     # "PSAR": "PSAR",
     "HURST": "HURST",
@@ -459,7 +459,7 @@ class ATR(BaseModel):
     name: str = "ATR"
     params: dict = {"period": 20, "multiple": 1}
     needs_comp: bool = True
-    valid_comps: list = ["PRICE"]
+    valid_comps: list = ["ATR"]
     # param period bound >= 2 and < 1000
     # param multiple bound by greather than 0.25 to 10
 
@@ -495,7 +495,7 @@ class ATRP(BaseModel):
     name: str = "ATRP"
     params: dict = {"period": 20, "multiple": 1}
     needs_comp: bool = True
-    valid_comps: list = ["PRICE"]
+    valid_comps: list = ["ATRP"]
     # param period bound >= 2 and < 1000
     # param multiple bound by greather than 0.25 to 10
 
@@ -584,7 +584,7 @@ class VOLATILITY(BaseModel):
     name: str = "VOLATILITY"
     params: dict = {"period": 252, "multiple": 1}
     needs_comp: bool = True
-    valid_comps: list = ["PRICE", "LEVEL"]
+    valid_comps: list = ["VOLATILITY", "LEVEL"]
     # param period bound >= 2 and < 1000
     # param multiple bound by greather than 0.25 to 10
 
