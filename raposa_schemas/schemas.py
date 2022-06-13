@@ -442,21 +442,21 @@ class PRICE_WINDOW(BaseModel):
         key_standard = ["period", "max_or_min", "price_type"]
         if len(key_standard) != len(value):
             raise ValueError(
-                "Wrong number of parameters used to build price window - please contact us about this bug."
+                "Wrong number of parameters used to build breakout signal - please contact us about this bug."
             )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to Price Window builder - please contact us about this bug."
+                        "Wrong parameters fed to breakout signal builder - please contact us about this bug."
                     )
         if not isinstance(value["period"], int):
-            raise TypeError("Price Window period must be a positive integer.")
+            raise TypeError("Breakout signal period must be a positive integer.")
         elif not value["period"] > 0:
-            raise TypeError("Price Window period must be > zero.")
+            raise TypeError("Breakout signal period must be > zero.")
 
         if value["max_or_min"] not in ["max" or "min"]:
-            raise ValueError("Price window max or min must be...max or min.")
+            raise ValueError("Breakout signal max or min must be...max or min.")
 
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
             raise ValueError("Price type must be High, Low, Close, or Typical.")
@@ -512,25 +512,25 @@ class ATRP(BaseModel):
         key_standard = ["period", "multiple"]
         if len(key_standard) != len(value):
             raise ValueError(
-                "Wrong number of parameters used to build ATR - please contact us about this bug."
+                "Wrong number of parameters used to build ATR % - please contact us about this bug."
             )
         else:
             for n, key in enumerate(value.keys()):
                 if key != key_standard[n]:
                     raise ValueError(
-                        "Wrong parameters fed to ATRP signal builder - please contact us about this bug."
+                        "Wrong parameters fed to ATR % signal builder - please contact us about this bug."
                     )
         if not isinstance(value["period"], int):
-            raise TypeError("ATRP period must be a positive integer.")
+            raise TypeError("ATR % period must be a positive integer.")
         elif not value["period"] > 0:
-            raise TypeError("ATRP period must be > zero")
+            raise TypeError("ATR % period must be > zero")
 
         if not isinstance(value["multiple"], int) and not isinstance(
             value["multiple"], float
         ):
-            raise TypeError("ATRP multiple must be a positive number.")
+            raise TypeError("ATR % multiple must be a positive number.")
         elif not value["multiple"] > 0:
-            raise TypeError("ATRP multiple must be > zero.")
+            raise TypeError("ATR % multiple must be > zero.")
         return value
 
 
