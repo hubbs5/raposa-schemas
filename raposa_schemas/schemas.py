@@ -144,6 +144,14 @@ position_sizings = {
     "Volatility Allocation": "VOLATILITYSizing",
     "ATR Allocation": "ATRSizing",
     "Turtle Allocation": "TurtleUnitSizing",
+    "No Risk Management": "NoRiskManagement",
+}
+
+position_managements = {
+    "Equal Allocation": "EqualAllocation",
+    "Volatility Allocation": "VOLATILITYSizing",
+    "ATR Allocation": "ATRSizing",
+    "Turtle Allocation": "TurtleUnitSizing",
     "Turtle Pyramiding": "TurtlePyramiding",
     "No Risk Management": "NoRiskManagement",
 }
