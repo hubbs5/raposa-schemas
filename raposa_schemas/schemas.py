@@ -83,7 +83,7 @@ every_indicator = {
     "Stop Price": "STOP_PRICE",
     "ATR Stop Price": "ATR_STOP_PRICE",
     "Price": "PRICE",
-    "Price Window": "PRICE_WINDOW",
+    "Breakout": "PRICE_WINDOW",
     "SMA": "SMA",
     "EMA": "EMA",
     "MACD": "MACD",
@@ -103,7 +103,7 @@ every_indicator = {
 # buy_indicators and sell_indicators are used in the dropdown menus for buy and sell tabs.
 buy_indicators = {
     "Price": "PRICE",
-    "Price Window": "PRICE_WINDOW",
+    "Breakout": "PRICE_WINDOW",
     "SMA": "SMA",
     "EMA": "EMA",
     "MACD": "MACD",
@@ -123,7 +123,7 @@ sell_indicators = {
     "Stop Price": "STOP_PRICE",
     "ATR Stop Price": "ATR_STOP_PRICE",
     "Price": "PRICE",
-    "Price Window": "PRICE_WINDOW",
+    "Breakout": "PRICE_WINDOW",
     "SMA": "SMA",
     "EMA": "EMA",
     "MACD": "MACD",
