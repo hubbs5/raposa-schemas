@@ -61,6 +61,12 @@ When changing a param dict, the following files must be updated:
 3) POSSIBLY raposa-website\apps\dash_strategy_builder\dash_app_utils\utils_strategy_compilation.py
 4) raposa-website\apps\dash_bot_garage\dash_app_utils\utils.py
 '''
+
+'''
+When changing anything in the strategy_settings schema, the following files must be updated:
+1) think about how this could affect default bots
+2) think about how this affects existing bots
+'''
 from typing import List, Type, Union, Optional
 from xmlrpc.client import boolean
 from pydantic import BaseModel, validator
