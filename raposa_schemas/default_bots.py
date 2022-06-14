@@ -60,17 +60,7 @@ def get_default_bot(bot_number):
             "trade_frequency": 1,
             "rebalance_frequency": 1,
             "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
-            "position_management_strategy": {
-                "name": "TurtlePyramiding",
-                "params": {
-                    "period": 10,
-                    "delta_N_frac": 0.5,
-                    "risk_coefficient": 0.8,
-                    "stop_price_N_frac": -8,
-                    "max_num_entry_points": 10,
-                    "max_position_risk_frac": 0.5,
-                },
-            },
+            "position_management_strategy": {"name": "NoRiskManagement", "params": {}},
         },
     }
     preset2 = {
@@ -118,10 +108,10 @@ def get_default_bot(bot_number):
         "strategy_settings": {
             "end_date": "2020-12-31",
             "init_date": "",
-            "start_date": "2017-01-01",
+            "start_date": "2019-01-01",
             "trade_days": ["mon", "tue", "wed", "thu", "fri"],
             "instruments": ["ABT", "ABBV", "HCA"],
-            "account_size": 30000,
+            "account_size": 15000,
             "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
             "trade_frequency": 1,
             "rebalance_frequency": 1,
@@ -129,9 +119,9 @@ def get_default_bot(bot_number):
             "position_management_strategy": {
                 "name": "ATRSizing",
                 "params": {
-                    "period": 14,
+                    "period": 15,
                     "risk_coefficient": 0.9,
-                    "max_position_risk_frac": 0.25,
+                    "max_position_risk_frac": 0.15,
                 },
             },
         },
@@ -148,13 +138,13 @@ def get_default_bot(bot_number):
                         "name": "ATR",
                         "params": {"period": 15, "multiple": 1.2},
                         "needs_comp": True,
-                        "valid_comps": ["PRICE"],
+                        "valid_comps": ["ATR"],
                     },
                     "comp_indicator": {
-                        "name": "PRICE",
-                        "params": {"price_type": "Close"},
+                        "name": "ATR",
+                        "params": {"period": 25, "multiple": 2.5},
                         "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "ATR"],
+                        "valid_comps": ["ATR"],
                     },
                 }
             ]
@@ -180,16 +170,23 @@ def get_default_bot(bot_number):
             ]
         },
         "strategy_settings": {
-            "end_date": "2020-12-31",
+            "end_date": "2021-12-31",
             "init_date": "",
-            "start_date": "2018-01-01",
+            "start_date": "2020-01-01",
             "trade_days": ["wed", "tue", "thu"],
             "instruments": ["SEDG"],
             "account_size": 10000,
             "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
             "trade_frequency": 1,
             "rebalance_frequency": 3,
-            "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
+            "position_sizing_strategy": {
+                "name": "VOLATILITYSizing",
+                "params": {
+                    "period": 12,
+                    "risk_coefficient": 2,
+                    "max_position_risk_frac": 0.15,
+                },
+            },
             "position_management_strategy": {"name": "NoRiskManagement", "params": {}},
         },
     }
@@ -203,15 +200,15 @@ def get_default_bot(bot_number):
                     "short": False,
                     "indicator": {
                         "name": "VOLATILITY",
-                        "params": {"period": 15, "multiple": 1.5},
+                        "params": {"period": 30, "multiple": 1.5},
                         "needs_comp": True,
-                        "valid_comps": ["PRICE", "LEVEL"],
+                        "valid_comps": ["VOLATILITY", "LEVEL"],
                     },
                     "comp_indicator": {
-                        "name": "PRICE",
-                        "params": {"price_type": "Typical"},
+                        "name": "VOLATILITY",
+                        "params": {"period": 15, "multiple": 1.5},
                         "needs_comp": True,
-                        "valid_comps": ["SMA", "EMA", "MACD", "ATR"],
+                        "valid_comps": ["VOLATILITY", "LEVEL"],
                     },
                 },
                 {
@@ -253,29 +250,28 @@ def get_default_bot(bot_number):
             ]
         },
         "strategy_settings": {
-            "end_date": "2020-12-31",
+            "end_date": "2022-12-31",
             "init_date": "",
-            "start_date": "2019-01-01",
-            "trade_days": ["tue", "wed", "thu"],
-            "instruments": ["FB", "AAPL", "AMZN", "NFLX", "GOOGL"],
-            "account_size": 50000,
-            "rebalance_days": ["tue", "wed", "thu"],
-            "trade_frequency": 1,
-            "rebalance_frequency": 3,
-            "position_sizing_strategy": {"name": "EqualAllocation", "params": {}},
-            "position_management_strategy": {
-                "name": "TurtlePyramiding",
+            "start_date": "2021-01-01",
+            "trade_days": ["tue", "wed", "thu", "fri"],
+            "instruments": ["AAPL", "AMZN", "NFLX", "GOOGL", "META"],
+            "account_size": 30000,
+            "rebalance_days": ["mon", "tue", "wed", "thu", "fri"],
+            "trade_frequency": 4,
+            "rebalance_frequency": 4,
+            "position_sizing_strategy": {
+                "name": "TurtleUnitSizing",
                 "params": {
-                    "period": 20,
-                    "delta_N_frac": 0.1,
-                    "risk_coefficient": 3,
-                    "stop_price_N_frac": -5,
-                    "max_num_entry_points": 5,
-                    "max_position_risk_frac": 0.16,
+                    "period": 60,
+                    "num_turtle_units": 5,
+                    "risk_coefficient": 4,
+                    "max_position_risk_frac": 0.08,
                 },
             },
+            "position_management_strategy": {"name": "EqualAllocation", "params": {}},
         },
     }
+
     if bot_number == 1:
         return preset1
     elif bot_number == 2:
