@@ -1160,12 +1160,12 @@ class CompleteStrategy(BaseModel):
 ## other classes that are used to make API calls
 class PricePlot(BaseModel):
     instr: str = "GE"
-    start_date: str = "2015"
-    end_date: str = "2017"
+    start_date: str = "2015-03-01"
+    end_date: str = "2017-06-04"
 
 
 class BuyAndHold(BaseModel):
     instr_list: List[str] = ["GE"]
     account_size: int = 100000
-    start_date: str = "2015"
-    end_date: str = "2017"
+    start_date: str = "2015-03-01"
+    end_date: str = "2017-06-04"
