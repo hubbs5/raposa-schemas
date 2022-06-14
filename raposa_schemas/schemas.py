@@ -1167,5 +1167,5 @@ class PricePlot(BaseModel):
 class BuyAndHold(BaseModel):
     instr_list: List[str] = ["GE"]
     account_size: int = 100000
-    start_date: str = "2015"
-    end_date: str = "2017"
+    start_date: str = "2015-03-01"
+    end_date: str = "2017-06-04"
