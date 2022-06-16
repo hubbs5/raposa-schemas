@@ -92,7 +92,7 @@ every_indicator = {
     "ATR": "ATR",
     "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
-    # "PSAR": "PSAR",
+    "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
     # "Bollinger Bands": "BOLLINGER",
@@ -112,7 +112,7 @@ buy_indicators = {
     "ATR": "ATR",
     "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
-    # "PSAR": "PSAR",
+    "PSAR": "PSAR",
     "HURST": "HURST",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH", 
@@ -132,7 +132,7 @@ sell_indicators = {
     "ATR": "ATR",
     "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
-    # "PSAR": "PSAR",
+    "PSAR": "PSAR",
     "HURST": "HURST",
     # "Bollinger Bands": "BOLLINGER", 
     # "Band Width": "BAND_WIDTH", 
@@ -623,22 +623,21 @@ class VOLATILITY(BaseModel):
         return value
 
 
-# class PSAR(BaseModel):
-#     """
-#     Parabolic SAR
-#     """
+class PSAR(BaseModel):
+    """
+    Parabolic SAR
+    """
 
-#     name: str = "PSAR"
-#     params: dict = {
-#         "type_indicator": "value",  # Either 'value', 'reversal_toUptrend', 'reversal_toDowntrend'
-#         "init_acceleration_factor": 0.02,
-#         "acceleration_factor_step": 0.02,
-#         "max_acceleration_factor": 0.2,
-#         "previous_day": False,  # Whether the PSAR returned is for current day (True) or not (for comparison)
-#         "period": 2,  # Number of days to look back to ensure PSAR is in proper range
-#     }
-#     needs_comp: bool = True
-#     valid_comps: list = ["LEVEL", "PSAR", "PRICE", "BOOLEAN"]
+    name: str = "PSAR"
+    params: dict = {
+        "type_indicator": "value",  # Either 'value', 'reversal_toUptrend', 'reversal_toDowntrend'
+        "init_acceleration_factor": 0.02,
+        "acceleration_factor_step": 0.02,
+        "max_acceleration_factor": 0.2,
+        "period": 2,  # Number of days to look back to ensure PSAR is in proper range
+    }
+    needs_comp: bool = True
+    valid_comps: list = ["LEVEL", "PSAR", "PRICE", "BOOLEAN"]
 
 
 class HURST(BaseModel):
