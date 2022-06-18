@@ -455,7 +455,7 @@ class PRICE_WINDOW(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("Breakout signal period must be > zero.")
 
-        if value["max_or_min"] not in ["max" or "min"]:
+        if value["max_or_min"] not in ["max", "min"]:
             raise ValueError("Breakout signal max or min must be...max or min.")
 
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
