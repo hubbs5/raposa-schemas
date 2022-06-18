@@ -406,7 +406,7 @@ class PRICE(BaseModel):
     name: str = "PRICE"
     params: dict = {"price_type": "Close"}  # must be in ["High", "Low", "Close", or "Typical"]
     needs_comp: bool = True
-    valid_comps: list = ["SMA", "EMA", "MACD", "ATR"]
+    valid_comps: list = ["SMA", "EMA", "MACD", "ATR", "PRICE_WINDOW"]
 
     @validator("params")
     def param_key_check(cls, value):
@@ -455,7 +455,7 @@ class PRICE_WINDOW(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("Breakout signal period must be > zero.")
 
-        if value["max_or_min"] not in ["max" or "min"]:
+        if value["max_or_min"] not in ["max", "min"]:
             raise ValueError("Breakout signal max or min must be...max or min.")
 
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
