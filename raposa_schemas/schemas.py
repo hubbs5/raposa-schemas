@@ -406,7 +406,7 @@ class PRICE(BaseModel):
     name: str = "PRICE"
     params: dict = {"price_type": "Close"}  # must be in ["High", "Low", "Close", or "Typical"]
     needs_comp: bool = True
-    valid_comps: list = ["SMA", "EMA", "MACD", "ATR"]
+    valid_comps: list = ["SMA", "EMA", "MACD", "ATR", "PRICE_WINDOW"]
 
     @validator("params")
     def param_key_check(cls, value):
