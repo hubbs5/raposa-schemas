@@ -79,6 +79,8 @@ signal_count = [
 # corresponding SCHEMA class listed at the bottom of this file.
 # - NOTE: all of the keys are what will show up in the dropdown menu, so their capitalization matters
 
+
+# every_indicator is not used to directly make any dropdowns. But used often to check if an indicator exists.
 every_indicator = {
     "Stop Price": "STOP_PRICE",
     "ATR Stop Price": "ATR_STOP_PRICE",
@@ -95,12 +97,13 @@ every_indicator = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
+    "True/False": "BOOLEAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH", 
     # "Moving Average Distance": "MAD"
 }
 
-# buy_indicators and sell_indicators are used in the dropdown menus for buy and sell tabs.
+# every indicator listed in buy-tab dropdown
 buy_indicators = {
     "Price": "PRICE",
     "Breakout": "PRICE_WINDOW",
@@ -119,6 +122,7 @@ buy_indicators = {
     # "Moving Average Distance": "MAD"
 }
 
+# every indicator listed in sell-tab dropdown
 sell_indicators = {
     "Stop Price": "STOP_PRICE",
     "ATR Stop Price": "ATR_STOP_PRICE",
