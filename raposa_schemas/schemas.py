@@ -79,6 +79,8 @@ signal_count = [
 # corresponding SCHEMA class listed at the bottom of this file.
 # - NOTE: all of the keys are what will show up in the dropdown menu, so their capitalization matters
 
+
+# every_indicator is not used to directly make any dropdowns. But used often to check if an indicator exists.
 every_indicator = {
     "Stop Price": "STOP_PRICE",
     "ATR Stop Price": "ATR_STOP_PRICE",
@@ -92,15 +94,16 @@ every_indicator = {
     "ATR": "ATR",
     "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
-    # "PSAR": "PSAR",
+    "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
+    "True/False": "BOOLEAN",
     # "Bollinger Bands": "BOLLINGER",
-    # "Band Width": "BAND_WIDTH", 
+    # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
 
-# buy_indicators and sell_indicators are used in the dropdown menus for buy and sell tabs.
+# every indicator listed in buy-tab dropdown
 buy_indicators = {
     "Price": "PRICE",
     "Breakout": "PRICE_WINDOW",
@@ -112,13 +115,14 @@ buy_indicators = {
     "ATR": "ATR",
     "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
-    # "PSAR": "PSAR",
+    "PSAR": "PSAR",
     "HURST": "HURST",
     # "Bollinger Bands": "BOLLINGER",
-    # "Band Width": "BAND_WIDTH", 
+    # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
 
+# every indicator listed in sell-tab dropdown
 sell_indicators = {
     "Stop Price": "STOP_PRICE",
     "ATR Stop Price": "ATR_STOP_PRICE",
@@ -132,10 +136,10 @@ sell_indicators = {
     "ATR": "ATR",
     "ATR %": "ATRP",
     "Volatility": "VOLATILITY",
-    # "PSAR": "PSAR",
+    "PSAR": "PSAR",
     "HURST": "HURST",
-    # "Bollinger Bands": "BOLLINGER", 
-    # "Band Width": "BAND_WIDTH", 
+    # "Bollinger Bands": "BOLLINGER",
+    # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
 
@@ -168,9 +172,9 @@ indicators_with_time_params = {
     "VOLATILITY": ["period"],
     "PSAR": ["period"],
     "PRICE_WINDOW": ["period"],
-    "BOLLINGER": ["period"], 
-    "BAND_WIDTH": ["period"], 
-    "MAD":["fastSMA_period", "slowSMA_period"]
+    "BOLLINGER": ["period"],
+    "BAND_WIDTH": ["period"],
+    "MAD": ["fastSMA_period", "slowSMA_period"],
 }
 
 relations = {"> or =": "geq", "< or =": "leq", ">": "gt", "<": "lt", "=": "eq"}
@@ -237,8 +241,7 @@ class EMA(BaseModel):
 
 class MACD(BaseModel):
     name: str = "MACD"
-    params: dict = {"fastEMA_period": 10, 
-                    "slowEMA_period": 20}
+    params: dict = {"fastEMA_period": 10, "slowEMA_period": 20}
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "PRICE", "MACD_SIGNAL"]
     # param bound >= 2 and < 1000
@@ -266,16 +269,16 @@ class MACD(BaseModel):
     @validator("params")
     def fast_slow_comparison(cls, value, values):
         if value["slowEMA_period"] <= value["fastEMA_period"]:
-            raise ValueError("The fast EMA period for MACD must be < the slow EMA period")
+            raise ValueError(
+                "The fast EMA period for MACD must be < the slow EMA period"
+            )
         return value
 
 
 class MACD_SIGNAL(BaseModel):
     name: str = "MACD_SIGNAL"
-    params: dict = {"fastEMA_period": 10, 
-                    "slowEMA_period": 20, 
-                    "signalEMA_period": 9}
-    needs_comp: bool = True 
+    params: dict = {"fastEMA_period": 10, "slowEMA_period": 20, "signalEMA_period": 9}
+    needs_comp: bool = True
     valid_comps: list = ["MACD", "SMA", "EMA"]
 
     @validator("params")
@@ -337,8 +340,8 @@ class RSI(BaseModel):
 class STOP_PRICE(BaseModel):
     name: str = "STOP_PRICE"
     params: dict = {
-        "percent_change": 10.1, 
-        "trailing":False
+        "percent_change": 10.1,
+        "trailing": False,
     }  # will be positive for stop profit and neg for stop loss
     needs_comp: bool = True  # will always be price
     valid_comps: list = ["PRICE"]
@@ -357,9 +360,10 @@ class STOP_PRICE(BaseModel):
                         "Wrong parameters fed to stop signal builder - please contact us about this bug."
                     )
             if not isinstance(value["percent_change"], float) and not isinstance(
-                value["percent_change"], int):
-                    raise TypeError("Stop price % change must be a number.")
-                
+                value["percent_change"], int
+            ):
+                raise TypeError("Stop price % change must be a number.")
+
             if not isinstance(value["trailing"], bool):
                 raise TypeError("'Trailing' value must be boolean.")
         return value
@@ -370,7 +374,7 @@ class ATR_STOP_PRICE(BaseModel):
     params: dict = dict(
         period=20,
         stop_price_ATR_frac=-2.0,  # positive for stop profit, negative for stop price
-        trailing=False, 
+        trailing=False,
     )
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
@@ -379,7 +383,7 @@ class ATR_STOP_PRICE(BaseModel):
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period",  "stop_price_ATR_frac","trailing"]
+        key_standard = ["period", "stop_price_ATR_frac", "trailing"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build ATR stop price - please contact us about this bug."
@@ -395,16 +399,19 @@ class ATR_STOP_PRICE(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("ATR stop price period must be > zero")
         if not isinstance(value["stop_price_ATR_frac"], float) and not isinstance(
-            value["stop_price_ATR_frac"], int):
+            value["stop_price_ATR_frac"], int
+        ):
             raise TypeError("ATR stop price fraction must be a number.")
         if not isinstance(value["trailing"], bool):
-                raise TypeError("'Trailing' value must be boolean.")
+            raise TypeError("'Trailing' value must be boolean.")
         return value
 
 
 class PRICE(BaseModel):
     name: str = "PRICE"
-    params: dict = {"price_type": "Close"}  # must be in ["High", "Low", "Close", or "Typical"]
+    params: dict = {
+        "price_type": "Close"
+    }  # must be in ["High", "Low", "Close", or "Typical"]
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "ATR", "PRICE_WINDOW"]
 
@@ -630,14 +637,14 @@ class PSAR(BaseModel):
 
     name: str = "PSAR"
     params: dict = {
-        "type_indicator": "value",  # Either 'value', 'reversal_toUptrend', 'reversal_toDowntrend'
+        "type_indicator": "reversal_toUptrend",  # Either 'reversal_toUptrend', 'reversal_toDowntrend'
         "init_acceleration_factor": 0.02,
         "acceleration_factor_step": 0.02,
         "max_acceleration_factor": 0.2,
         "period": 2,  # Number of days to look back to ensure PSAR is in proper range
     }
     needs_comp: bool = True
-    valid_comps: list = ["LEVEL", "PSAR", "PRICE", "BOOLEAN"]
+    valid_comps: list = ["BOOLEAN"]
 
 
 class HURST(BaseModel):
@@ -676,19 +683,27 @@ class HURST(BaseModel):
         return value
 
 
-class BOLLINGER(BaseModel): 
+class BOLLINGER(BaseModel):
     name: str = "BOLLINGER"
-    params: dict = {"period": 20, 
-                    "numStdDevUpper": 2, 
-                    "numStdDevLower": 2, 
-                    "price_type":"Typical", # price_type either "High", "Low", "Close", or "Typical"
-                    "band": "upper"} #"band" in ["upper", "middle", "lower"]
+    params: dict = {
+        "period": 20,
+        "numStdDevUpper": 2,
+        "numStdDevLower": 2,
+        "price_type": "Typical",  # price_type either "High", "Low", "Close", or "Typical"
+        "band": "upper",
+    }  # "band" in ["upper", "middle", "lower"]
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]
-    
+
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "numStdDevUpper", "numStdDevLower", "price_type", "band"]
+        key_standard = [
+            "period",
+            "numStdDevUpper",
+            "numStdDevLower",
+            "price_type",
+            "band",
+        ]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build Bollinger Band - please contact us about this bug."
@@ -716,22 +731,25 @@ class BOLLINGER(BaseModel):
             raise TypeError("Bollinger Band numStdDevLower must be a positive number.")
         elif not value["numStdDevLower"] > 0:
             raise TypeError("Bollinger Band numStdDevLower must be > zero.")
-        
+
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
             raise ValueError("Price type must be High, Low, Close, or Typical.")
         if value["band"] not in ["upper", "middle", "lower"]:
             raise ValueError("Band must be 'upper', 'middle', or 'lower'.")
         return value
-    
-class BAND_WIDTH(BaseModel): 
+
+
+class BAND_WIDTH(BaseModel):
     name: str = "BAND_WIDTH"
-    params: dict = {"period": 20, 
-                    "numStdDevUpper": 2,
-                    "numStdDevLower": 2, 
-                    "price_type":"Typical"} # price_type either "High", "Low", "Close", or "Typical"
+    params: dict = {
+        "period": 20,
+        "numStdDevUpper": 2,
+        "numStdDevLower": 2,
+        "price_type": "Typical",
+    }  # price_type either "High", "Low", "Close", or "Typical"
     needs_comp: bool = True
-    valid_comps: list = ["PRICE", "LEVEL"]  
-    
+    valid_comps: list = ["PRICE", "LEVEL"]
+
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["period", "numStdDevUpper", "numStdDevLower", "price_type"]
@@ -762,18 +780,18 @@ class BAND_WIDTH(BaseModel):
             raise TypeError("Band Width numStdDevLower must be a positive number.")
         elif not value["numStdDevLower"] > 0:
             raise TypeError("Band Width numStdDevLower must be > zero.")
-        
+
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
             raise ValueError("Price type must be High, Low, Close, or Typical.")
         return value
 
-class MAD(BaseModel): 
+
+class MAD(BaseModel):
     name: str = "MAD"
-    params: dict = {"fastSMA_period": 21, 
-                    "slowSMA_period":200}
+    params: dict = {"fastSMA_period": 21, "slowSMA_period": 200}
     needs_comp: bool = True
-    valid_comps: list = ["PRICE", "LEVEL"]  
-    
+    valid_comps: list = ["PRICE", "LEVEL"]
+
     @validator("params")
     def param_key_check(cls, value):
         key_standard = ["fastSMA_period", "slowSMA_period"]
@@ -791,16 +809,18 @@ class MAD(BaseModel):
             raise TypeError("MAD fast period must be a positive integer.")
         elif not value["fastSMA_period"] > 0:
             raise TypeError("MAD fast period must be > zero")
-        
+
         if not isinstance(value["slowSMA_period"], int):
             raise TypeError("MAD slow period must be a positive integer.")
         elif not value["slowSMA_period"] > 0:
             raise TypeError("MAD slow period must be > zero")
-        
+
         if value["fastSMA_period"] > value["slowSMA_period"]:
             raise ValueError(f"fastSMA_period must be < slowSMA_period")
 
         return value
+
+
 # Classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
 
 
@@ -838,28 +858,37 @@ class VOLATILITYSizing(BaseModel):
                         "Wrong parameters fed to Volatility Sizing - please contact us about this bug."
                     )
 
-        #validate period
+        # validate period
         if not isinstance(value["period"], int):
             raise TypeError("Volatility Sizing period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("Volatility Sizing period must be > zero")
 
-        #validaet risk coefficient
+        # validaet risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
-            raise TypeError("Volatility Sizing risk coefficient must be a positive number.")
+            raise TypeError(
+                "Volatility Sizing risk coefficient must be a positive number."
+            )
         elif not value["risk_coefficient"] > 0:
             raise TypeError("Volatility Sizing risk coefficient must be > zero.")
 
-        #validate max position risk fraction
+        # validate max position risk fraction
         if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
             value["max_position_risk_frac"], float
         ):
-            raise TypeError("Volatility Sizing max position risk fraction must be a number.")
-        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
-            raise TypeError("Volatility Sizing max position risk fraction must be > zero and < 1.")
-        
+            raise TypeError(
+                "Volatility Sizing max position risk fraction must be a number."
+            )
+        elif (
+            not value["max_position_risk_frac"] > 0
+            and not value["max_position_risk_frac"] < 1
+        ):
+            raise TypeError(
+                "Volatility Sizing max position risk fraction must be > zero and < 1."
+            )
+
         return value
 
 
@@ -883,14 +912,14 @@ class ATRSizing(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to ATR Sizing - please contact us about this bug."
                     )
-                    
-        #validate period
+
+        # validate period
         if not isinstance(value["period"], int):
             raise TypeError("ATR Sizing period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("ATR Sizing period must be > zero.")
 
-        #validaet risk coefficient
+        # validaet risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
@@ -898,15 +927,21 @@ class ATRSizing(BaseModel):
         elif not value["risk_coefficient"] > 0:
             raise TypeError("ATR Sizing risk coefficient must be > zero.")
 
-        #validate max position risk fraction
+        # validate max position risk fraction
         if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
             value["max_position_risk_frac"], float
         ):
             raise TypeError("ATR Sizing max position risk fraction must be a number.")
-        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
-            raise TypeError("ATR Sizing max position risk fraction must be > zero and < 1.")
-        
+        elif (
+            not value["max_position_risk_frac"] > 0
+            and not value["max_position_risk_frac"] < 1
+        ):
+            raise TypeError(
+                "ATR Sizing max position risk fraction must be > zero and < 1."
+            )
+
         return value
+
 
 class TurtleUnitSizing(BaseModel):
     name: str = "TurtleUnitSizing"
@@ -923,7 +958,12 @@ class TurtleUnitSizing(BaseModel):
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "risk_coefficient", "max_position_risk_frac", "num_turtle_units"]
+        key_standard = [
+            "period",
+            "risk_coefficient",
+            "max_position_risk_frac",
+            "num_turtle_units",
+        ]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build Turtle Sizing - please contact us about this bug."
@@ -934,14 +974,14 @@ class TurtleUnitSizing(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to Turtle Sizing - please contact us about this bug."
                     )
-                    
-        #validate period
+
+        # validate period
         if not isinstance(value["period"], int):
             raise TypeError("Turtle Sizing period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("Turtle Sizing period must be > zero")
 
-        #validaet risk coefficient
+        # validaet risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
@@ -949,20 +989,30 @@ class TurtleUnitSizing(BaseModel):
         elif not value["risk_coefficient"] > 0:
             raise TypeError("Turtle Sizing risk coefficient must be > zero.")
 
-        #validate max position risk fraction
+        # validate max position risk fraction
         if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
             value["max_position_risk_frac"], float
         ):
-            raise TypeError("Turtle Sizing max position risk fraction must be a number.")
-        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
-            raise TypeError("Turtle Sizing max position risk fraction must be > zero and < 1.")
+            raise TypeError(
+                "Turtle Sizing max position risk fraction must be a number."
+            )
+        elif (
+            not value["max_position_risk_frac"] > 0
+            and not value["max_position_risk_frac"] < 1
+        ):
+            raise TypeError(
+                "Turtle Sizing max position risk fraction must be > zero and < 1."
+            )
 
-        #validate turtle units
+        # validate turtle units
         if not isinstance(value["num_turtle_units"], int):
-            raise TypeError("Turtle Sizing number of turtle units must be a positive integer.")
+            raise TypeError(
+                "Turtle Sizing number of turtle units must be a positive integer."
+            )
         elif not value["num_turtle_units"] > 0:
-            raise TypeError("Turtle Sizing number of turtle units must be > zero")  
+            raise TypeError("Turtle Sizing number of turtle units must be > zero")
         return value
+
 
 class TurtlePyramiding(BaseModel):
     name: str = "TurtlePyramiding"
@@ -982,7 +1032,14 @@ class TurtlePyramiding(BaseModel):
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "risk_coefficient", "max_position_risk_frac", "max_num_entry_points", "delta_N_frac", "stop_price_N_frac"]
+        key_standard = [
+            "period",
+            "risk_coefficient",
+            "max_position_risk_frac",
+            "max_num_entry_points",
+            "delta_N_frac",
+            "stop_price_N_frac",
+        ]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build Turtle Pyramid Sizing - please contact us about this bug."
@@ -993,44 +1050,59 @@ class TurtlePyramiding(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to Turtle Pyramid Sizing - please contact us about this bug."
                     )
-                    
-        #validate period
+
+        # validate period
         if not isinstance(value["period"], int):
             raise TypeError("Turtle Pyramid Sizing period must be a positive integer.")
         elif not value["period"] > 0:
             raise TypeError("Turtle Pyramid Sizing period must be > zero")
 
-        #validaet risk coefficient
+        # validaet risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
-            raise TypeError("Turtle Pyramid Sizing risk coefficient must be a positive number.")
+            raise TypeError(
+                "Turtle Pyramid Sizing risk coefficient must be a positive number."
+            )
         elif not value["risk_coefficient"] > 0:
             raise TypeError("Turtle Pyramid Sizing risk coefficient must be > zero.")
 
-        #validate max position risk fraction
+        # validate max position risk fraction
         if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
             value["max_position_risk_frac"], float
         ):
-            raise TypeError("Turtle Pyramid Sizing max position risk fraction must be a number.")
-        elif not value["max_position_risk_frac"] > 0 and not value["max_position_risk_frac"] < 1:
-            raise TypeError("Turtle Pyramid Sizing max position risk fraction must be > zero and < 1.")
+            raise TypeError(
+                "Turtle Pyramid Sizing max position risk fraction must be a number."
+            )
+        elif (
+            not value["max_position_risk_frac"] > 0
+            and not value["max_position_risk_frac"] < 1
+        ):
+            raise TypeError(
+                "Turtle Pyramid Sizing max position risk fraction must be > zero and < 1."
+            )
 
-        #validate max num entry points
+        # validate max num entry points
         if not isinstance(value["max_num_entry_points"], int):
-            raise TypeError("Turtle Pyramid Sizing max number of entry points must be an integer.")
+            raise TypeError(
+                "Turtle Pyramid Sizing max number of entry points must be an integer."
+            )
         elif not value["max_num_entry_points"] > 0:
-            raise TypeError("Turtle Pyramid Sizing max number of entry points must be > zero")
+            raise TypeError(
+                "Turtle Pyramid Sizing max number of entry points must be > zero"
+            )
 
-        #validate delta N fraction
+        # validate delta N fraction
         if not isinstance(value["delta_N_frac"], int) and not isinstance(
             value["delta_N_frac"], float
         ):
-            raise TypeError("Turtle Pyramid Sizing delta N fraction must be a positive number.")
+            raise TypeError(
+                "Turtle Pyramid Sizing delta N fraction must be a positive number."
+            )
         elif not value["delta_N_frac"] > 0:
             raise TypeError("Turtle Pyramid Sizing delta N fraction must be > zero.")
 
-        #validate delta N fraction
+        # validate delta N fraction
         if not isinstance(value["stop_price_N_frac"], int) and not isinstance(
             value["stop_price_N_frac"], float
         ):
@@ -1130,7 +1202,9 @@ class StrategySettings(BaseModel):
         if len(value) == 0:
             raise ValueError("Please select at least one instrument")
         elif len(value) >= max_instruments:
-            raise ValueError(f"You have selected more stocks than our interns can process. A Maximum of {max_instruments} instruments can be selected for now.")
+            raise ValueError(
+                f"You have selected more stocks than our interns can process. A Maximum of {max_instruments} instruments can be selected for now."
+            )
         return value
 
     @validator("rebalance_frequency")  # make sure this list is not empty
@@ -1138,8 +1212,6 @@ class StrategySettings(BaseModel):
         if not isinstance(value, int) or not value >= 0:
             raise TypeError("Rebalance frequency must be a positive integer.")
         return value
-        
-
 
 
 # TODO: I don't particularly like layering so many schemas, but I can't
