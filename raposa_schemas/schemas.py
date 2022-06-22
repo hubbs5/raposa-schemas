@@ -97,7 +97,7 @@ every_indicator = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
-    "Signal is": "BOOLEAN",
+    # "Signal is": "BOOLEAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
