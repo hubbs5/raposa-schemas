@@ -97,7 +97,7 @@ every_indicator = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
-    "True/False": "BOOLEAN",
+    # "Signal is": "BOOLEAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
@@ -643,8 +643,8 @@ class PSAR(BaseModel):
         "max_acceleration_factor": 0.2,
         "period": 2,  # Number of days to look back to ensure PSAR is in proper range
     }
-    needs_comp: bool = True
-    valid_comps: list = ["BOOLEAN"]
+    needs_comp: bool = False
+    valid_comps: list = None
 
 
 class HURST(BaseModel):
