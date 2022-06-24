@@ -643,8 +643,8 @@ class PSAR(BaseModel):
         "max_acceleration_factor": 0.2,
         "period": 2,  # Number of days to look back to ensure PSAR is in proper range
     }
-    needs_comp: bool = False
-    valid_comps: list = None
+    needs_comp: bool = True
+    valid_comps: list = ['BOOLEAN']
 
 
 class HURST(BaseModel):
