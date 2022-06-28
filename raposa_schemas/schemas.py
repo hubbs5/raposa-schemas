@@ -82,8 +82,8 @@ signal_count = [
 
 # every_indicator is not used to directly make any dropdowns. But used often to check if an indicator exists.
 every_indicator = {
-    "Stop Price": "STOP_PRICE",
-    "ATR Stop Price": "ATR_STOP_PRICE",
+    "Stop Loss": "STOP_PRICE",
+    "ATR Stop Loss": "ATR_STOP_PRICE",
     "Price": "PRICE",
     "Breakout": "PRICE_WINDOW",
     "SMA": "SMA",
@@ -124,8 +124,8 @@ buy_indicators = {
 
 # every indicator listed in sell-tab dropdown
 sell_indicators = {
-    "Stop Price": "STOP_PRICE",
-    "ATR Stop Price": "ATR_STOP_PRICE",
+    "Stop Loss": "STOP_PRICE",
+    "ATR Stop Loss": "ATR_STOP_PRICE",
     "Price": "PRICE",
     "Breakout": "PRICE_WINDOW",
     "SMA": "SMA",
