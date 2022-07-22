@@ -97,6 +97,9 @@ every_indicator = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
+    "Upper Donchian Channel": "UPPER_DONCHIAN",
+    "Lower Donchian Channel": "LOWER_DONCHIAN",
+    "Middle Donchian Channel": "MIDDLE_DONCHIAN",
     # "Signal is": "BOOLEAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
@@ -117,6 +120,10 @@ buy_indicators = {
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
+    "Donchian Channel": "DONCHIAN",
+    "Upper Donchian Channel": "UPPER_DONCHIAN",
+    "Lower Donchian Channel": "LOWER_DONCHIAN",
+    "Middle Donchian Channel": "MIDDLE_DONCHIAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
@@ -138,6 +145,7 @@ sell_indicators = {
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
+    "Donchian Channel": "DONCHIAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
@@ -175,6 +183,7 @@ indicators_with_time_params = {
     "BOLLINGER": ["period"],
     "BAND_WIDTH": ["period"],
     "MAD": ["fastSMA_period", "slowSMA_period"],
+    "DONCHIAN": ["period"],
 }
 
 relations = {"> or =": "geq", "< or =": "leq", ">": "gt", "<": "lt", "=": "eq"}
@@ -786,6 +795,34 @@ class BAND_WIDTH(BaseModel):
         return value
 
 
+class DONCHIAN(BaseModel):
+    name: str = "DONCHIAN"
+    params: dict = {"period": 20, "band": "middle"}
+    needs_comp: bool = True
+    valid_comps: list = ["PRICE"]
+
+    @validator("params")
+    def param_key_check(cls, value):
+        bands = ["upper", "lower", "middle"]
+        key_standard = ["period", "band"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build DONCHIAN - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to price signal builder - please contact us about this bug"
+                    )
+        if not isinstance(value["period"], int):
+            raise TypeError("DONCHIAN period must be a positive integer.")
+        elif not value["band"] in bands:
+            raise ValueError(f"{value['band']} not recognized. Must be {bands}")
+
+        return value
+
+
 class MAD(BaseModel):
     name: str = "MAD"
     params: dict = {"fastSMA_period": 21, "slowSMA_period": 200}
@@ -919,7 +956,7 @@ class ATRSizing(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("ATR Sizing period must be > zero.")
 
-        # validaet risk coefficient
+        # validate risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
