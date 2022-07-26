@@ -1,42 +1,28 @@
 # coding: utf-8
 
-# Author: Christian Hubbs
-# Email: christian@raposa.co
+# Notes about these schemas
+# - Union[] is not a very durable way to check if indicator or comp indicator matches the criteria of another schema
+# - Union[] will try to force the field value to work with every option in Union, starting from left to right.
+#         --> for instance if you feed indicator = an instance of EMA class into building a SIGNAL class 
+#         ---> if SIGNAL had a Union[SMA,EMA] check on indicator, it will assign the EMA class values into an SMA class
+# - to avoid this, I am going back to using dictionaries as parameter inputs and indicator inputs. 
+# - I wrote custom validation checks for every schema class to avoid this Union problem
 
-# This file contains data schemas for type checking API inputs.
+# - The custom validation checks make sure that the parametr dictionary for every indicator has 
+#         1) the correct number of keys
+#         2) the correct keys as compared to the standard outlined in the validation functions in each class
+# How to add a new indicator to the website
+#     1) create a schema class here
+#     2) Before issuing the PR to raposa-schemas, 
+#         pip install the branch onto your local raposa-website using pip install -e git+https://git@github.com/hubbs5/raposa-schemas.git@{ branch name }#egg=raposa-schemas
+#         pip install the branch onto your local raposa using pip install -e git+https://git@github.com/hubbs5/raposa-schemas.git@{ branch name }#egg=raposa-schemas
+#     3) Add the indicator to raposa-website\apps\dash_strategy_builder\dash_app_utils\indicator_divs.py
+#         It is not best practice, but you may need to add a special case to 
+#         raposa-website\apps\dash_strategy_builder\dash_app_utils\strategy_compilation.py for indicators that do not follow the standard formula
+#     4) test to make sure backtests can run with the new indicator on the frontend
+#     5) update the bot garage so that it can process the indicator in new strategies
+#         update signal_translator() in apps\dash_bot_garage\dash_app_utils\utils.py 
 
-"""Notes about these schemas
-- Union[] is not a very durable way to check if indicator or comp indicator matches the criteria of another schema
-- Union[] will try to force the field value to work with every option in Union, starting from left to right.
-        --> for instance if you feed indicator = an instance of EMA class into building a SIGNAL class 
-        ---> if SIGNAL had a Union[SMA,EMA] check on indicator, it will assign the EMA class values into an SMA class
-- to avoid this, I am going back to using dictionaries as parameter inputs and indicator inputs. 
-- I wrote custom validation checks for every schema class to avoid this Union problem
-
-- The custom validation checks make sure that the parametr dictionary for every indicator has 
-        1) the correct number of keys
-        2) the correct keys as compared to the standard outlined in the validation functions in each class
-"""
-
-
-
-
-"""
-How to add a new indicator to the website
-    1) create a schema class here
-    2) Before issuing the PR to raposa-schemas, 
-        pip install the branch onto your local raposa-website using pip install -e git+https://git@github.com/hubbs5/raposa-schemas.git@{ branch name }#egg=raposa-schemas
-        pip install the branch onto your local raposa using pip install -e git+https://git@github.com/hubbs5/raposa-schemas.git@{ branch name }#egg=raposa-schemas
-    3) Add the indicator to raposa-website\apps\dash_strategy_builder\dash_app_utils\indicator_divs.py
-        It is not best practice, but you may need to add a special case to 
-        raposa-website\apps\dash_strategy_builder\dash_app_utils\strategy_compilation.py for indicators that do not follow the standard formula
-    4) test to make sure backtests can run with the new indicator on the frontend
-    5) update the bot garage so that it can process the indicator in new strategies
-        update signal_translator() in apps\dash_bot_garage\dash_app_utils\utils.py
-
-    -
-    
-"""
 from typing import List, Type, Union, Optional
 from xmlrpc.client import boolean
 from pydantic import BaseModel, validator
