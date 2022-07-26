@@ -1,58 +1,28 @@
 # coding: utf-8
 
-# Author: Christian Hubbs
-# Email: christian@raposa.co
+# Notes about these schemas
+# - Union[] is not a very durable way to check if indicator or comp indicator matches the criteria of another schema
+# - Union[] will try to force the field value to work with every option in Union, starting from left to right.
+#         --> for instance if you feed indicator = an instance of EMA class into building a SIGNAL class 
+#         ---> if SIGNAL had a Union[SMA,EMA] check on indicator, it will assign the EMA class values into an SMA class
+# - to avoid this, I am going back to using dictionaries as parameter inputs and indicator inputs. 
+# - I wrote custom validation checks for every schema class to avoid this Union problem
 
-# This file contains data schemas for type checking API inputs.
+# - The custom validation checks make sure that the parametr dictionary for every indicator has 
+#         1) the correct number of keys
+#         2) the correct keys as compared to the standard outlined in the validation functions in each class
+# How to add a new indicator to the website
+#     1) create a schema class here
+#     2) Before issuing the PR to raposa-schemas, 
+#         pip install the branch onto your local raposa-website using pip install -e git+https://git@github.com/hubbs5/raposa-schemas.git@{ branch name }#egg=raposa-schemas
+#         pip install the branch onto your local raposa using pip install -e git+https://git@github.com/hubbs5/raposa-schemas.git@{ branch name }#egg=raposa-schemas
+#     3) Add the indicator to raposa-website\apps\dash_strategy_builder\dash_app_utils\indicator_divs.py
+#         It is not best practice, but you may need to add a special case to 
+#         raposa-website\apps\dash_strategy_builder\dash_app_utils\strategy_compilation.py for indicators that do not follow the standard formula
+#     4) test to make sure backtests can run with the new indicator on the frontend
+#     5) update the bot garage so that it can process the indicator in new strategies
+#         update signal_translator() in apps\dash_bot_garage\dash_app_utils\utils.py 
 
-"""Notes about these schemas
-- Union[] is not a very durable way to check if indicator or comp indicator matches the criteria of another schema
-- Union[] will try to force the field value to work with every option in Union, starting from left to right.
-        --> for instance if you feed indicator = an instance of EMA class into building a SIGNAL class 
-        ---> if SIGNAL had a Union[SMA,EMA] check on indicator, it will assign the EMA class values into an SMA class
-- to avoid this, I am going back to using dictionaries as parameter inputs and indicator inputs. 
-- I wrote custom validation checks for every schema class to avoid this Union problem
-
-- The custom validation checks make sure that the parametr dictionary for every indicator has 
-        1) the correct number of keys
-        2) the correct keys as compared to the standard outlined in the validation functions in each class
-"""
-
-
-"""
-notes about pydantic and Typing
-    - Union from typing allows for entries to be of either type BUT the 
-    first listed will be prioritized. This WILL convert entry types.
-
-    Pydantic Classes that are generated with Basemodel have a few ways to see the data
-    ex: 
-        indicator = SMA(signal_name = 'SMA', period = 2)
-        print(SMA.json())
-        print(SMA.dict())
-        print(SMA.schema_json(indent=2)) # outputs muct more information about the model including default values and field type
-
-    Pydantic fields:
-        - if you do not list a default value the field is mandatory
-        - you must specify either the type of each field, 
-            not really, but there are conseuquences of mixing specification and not in one model see docs)
-
-    - You can make an instance of a class with this code:
-        indicator_klass = globals()['PRICE'] 
-        params = indicator_klass.__fields__['params']
-        # This will make an object of the class that is hard to work with, but can be populated with
-        temp_klass = indicator_klass()
-        print(temp_klass.params
-
-"""
-
-"""
-How to add a new strategy option to the site that requires parameters (position sizing, risk management, etc)
-    - create the new dropdowns in buy_tab, sell_tab, or strategy_tab
-    - create the callbacks buy_tab, sell_tab, or strategy_tab
-    - add the new inputs to dash_app_main.build_strategy callback
-    - update utils_strategy_compilation.py
-    
-"""
 from typing import List, Type, Union, Optional
 from xmlrpc.client import boolean
 from pydantic import BaseModel, validator
@@ -97,6 +67,7 @@ every_indicator = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Level": "LEVEL",
+    "Donchian Channel": "DONCHIAN",
     # "Signal is": "BOOLEAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
@@ -117,6 +88,7 @@ buy_indicators = {
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
+    "Donchian Channel": "DONCHIAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
@@ -138,6 +110,7 @@ sell_indicators = {
     "Volatility": "VOLATILITY",
     "PSAR": "PSAR",
     "HURST": "HURST",
+    "Donchian Channel": "DONCHIAN",
     # "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
@@ -175,10 +148,36 @@ indicators_with_time_params = {
     "BOLLINGER": ["period"],
     "BAND_WIDTH": ["period"],
     "MAD": ["fastSMA_period", "slowSMA_period"],
+    "DONCHIAN": ["period"],
 }
 
 relations = {"> or =": "geq", "< or =": "leq", ">": "gt", "<": "lt", "=": "eq"}
 
+"""
+notes about pydantic and Typing
+    - Union from typing allows for entries to be of either type BUT the 
+    first listed will be prioritized. This WILL convert entry types.
+
+    Pydantic Classes that are generated with Basemodel have a few ways to see the data
+    ex: 
+        indicator = SMA(signal_name = 'SMA', period = 2)
+        print(SMA.json())
+        print(SMA.dict())
+        print(SMA.schema_json(indent=2)) # outputs muct more information about the model including default values and field type
+
+    Pydantic fields:
+        - if you do not list a default value the field is mandatory
+        - you must specify either the type of each field, 
+            not really, but there are conseuquences of mixing specification and not in one model see docs)
+
+    - You can make an instance of a class with this code:
+        indicator_klass = globals()['PRICE'] 
+        params = indicator_klass.__fields__['params']
+        # This will make an object of the class that is hard to work with, but can be populated with
+        temp_klass = indicator_klass()
+        print(temp_klass.params
+
+"""
 
 """ all of these indicator classes have the same number of inputs
 as required to run in pyalgotrade"""
@@ -786,6 +785,34 @@ class BAND_WIDTH(BaseModel):
         return value
 
 
+class DONCHIAN(BaseModel):
+    name: str = "DONCHIAN"
+    params: dict = {"period": 20, "channel": "middle"}
+    needs_comp: bool = True
+    valid_comps: list = ["PRICE"]
+
+    @validator("params")
+    def param_key_check(cls, value):
+        channels = ["upper", "lower", "middle"]
+        key_standard = ["period", "channel"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build DONCHIAN - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to price signal builder - please contact us about this bug"
+                    )
+        if not isinstance(value["period"], int):
+            raise TypeError("DONCHIAN period must be a positive integer.")
+        elif not value["channel"] in channels:
+            raise ValueError(f"{value['channel']} not recognized. Must be {channels}")
+
+        return value
+
+
 class MAD(BaseModel):
     name: str = "MAD"
     params: dict = {"fastSMA_period": 21, "slowSMA_period": 200}
@@ -919,7 +946,7 @@ class ATRSizing(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("ATR Sizing period must be > zero.")
 
-        # validaet risk coefficient
+        # validate risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
