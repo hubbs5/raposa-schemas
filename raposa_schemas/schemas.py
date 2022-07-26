@@ -787,14 +787,14 @@ class BAND_WIDTH(BaseModel):
 
 class DONCHIAN(BaseModel):
     name: str = "DONCHIAN"
-    params: dict = {"period": 20, "band": "middle"}
+    params: dict = {"period": 20, "channel": "middle"}
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
 
     @validator("params")
     def param_key_check(cls, value):
-        bands = ["upper", "lower", "middle"]
-        key_standard = ["period", "band"]
+        channels = ["upper", "lower", "middle"]
+        key_standard = ["period", "channel"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build DONCHIAN - please contact us about this bug."
@@ -807,8 +807,8 @@ class DONCHIAN(BaseModel):
                     )
         if not isinstance(value["period"], int):
             raise TypeError("DONCHIAN period must be a positive integer.")
-        elif not value["band"] in bands:
-            raise ValueError(f"{value['band']} not recognized. Must be {bands}")
+        elif not value["channel"] in channels:
+            raise ValueError(f"{value['channel']} not recognized. Must be {channels}")
 
         return value
 
