@@ -913,11 +913,11 @@ class VOLATILITYSizing(BaseModel):
 
         # validate risk cap
         if "risk_cap" not in value.keys():
-            warn("ATR Sizing modules without a risk_cap are deprecated and will not be allowed in the future.",
+            warn("Volatility Sizing modules without a risk_cap are deprecated and will not be allowed in the future.",
                 DeprecationWarning, stacklevel=2)
             value["risk_cap"] = False
         elif not isinstance(value["risk_cap"], bool):
-            raise TypeError("ATR Sizing risk cap must be boolean.")
+            raise TypeError("Volatility Sizing risk cap must be boolean.")
 
         return value
 
@@ -942,16 +942,6 @@ class ATRSizing(BaseModel):
             "max_position_risk_frac",
             "risk_cap"
             ]
-        if len(key_standard) != len(value):
-            raise ValueError(
-                "Wrong number of parameters used to build ATR Sizing - please contact us about this bug."
-            )
-        else:
-            for n, key in enumerate(value.keys()):
-                if key != key_standard[n]:
-                    raise ValueError(
-                        "Wrong parameters fed to ATR Sizing - please contact us about this bug."
-                    )
 
         # validate period
         if not isinstance(value["period"], int):
@@ -1057,7 +1047,7 @@ class TurtleUnitSizing(BaseModel):
                 DeprecationWarning, stacklevel=2)
             value["risk_cap"] = False
         elif not isinstance(value["risk_cap"], bool):
-            raise TypeError("ATR Sizing risk cap must be boolean.")
+            raise TypeError("Turtle Sizing risk cap must be boolean.")
         
         return value
 
@@ -1068,16 +1058,15 @@ class TurtlePyramiding(BaseModel):
         "period": 20,  # used to calculate N
         "risk_coefficient": 2,
         "max_position_risk_frac": 0.02,
-        "max_num_entry_points": 4,
-        "delta_N_frac": 0.5,
-        "stop_price_N_frac": -2.0,  # positive for stop profit, negative for stop loss
+        "max_num_entry_points": 1,
+        "delta_N_frac": 0.2,
+        "stop_price_N_frac": -2.0,
         "risk_cap": False
     }
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # risk coefficient: (0,10) but not quite 0
-    # max_position num entry points integer > 0
-    # delta N fraction: > 0
-    # stop price n fraction sort of like ATR stop price -10 to +10
+    # max_position risk fraction (0,1) do not include 0
+    # number of turtle units must be > 0
 
     @validator("params")
     def param_key_check(cls, value):
@@ -1090,81 +1079,76 @@ class TurtlePyramiding(BaseModel):
             "stop_price_N_frac",
             "risk_cap"
         ]
-        if len(key_standard) != len(value):
-            raise ValueError(
-                "Wrong number of parameters used to build Turtle Pyramid Sizing - please contact us about this bug."
-            )
-        else:
-            for n, key in enumerate(value.keys()):
-                if key != key_standard[n]:
-                    raise ValueError(
-                        "Wrong parameters fed to Turtle Pyramid Sizing - please contact us about this bug."
-                    )
 
         # validate period
         if not isinstance(value["period"], int):
-            raise TypeError("Turtle Pyramid Sizing period must be a positive integer.")
+            raise TypeError("Turtle Sizing period must be a positive integer.")
         elif not value["period"] > 0:
-            raise TypeError("Turtle Pyramid Sizing period must be > zero")
+            raise TypeError("Turtle Pyramding period must be > zero")
 
         # validaet risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
-            raise TypeError(
-                "Turtle Pyramid Sizing risk coefficient must be a positive number."
-            )
+            raise TypeError("Turtle Pyramding risk coefficient must be a positive number.")
         elif not value["risk_coefficient"] > 0:
-            raise TypeError("Turtle Pyramid Sizing risk coefficient must be > zero.")
+            raise TypeError("Turtle Pyramding risk coefficient must be > zero.")
 
         # validate max position risk fraction
         if not isinstance(value["max_position_risk_frac"], int) and not isinstance(
             value["max_position_risk_frac"], float
         ):
             raise TypeError(
-                "Turtle Pyramid Sizing max position risk fraction must be a number."
+                "Turtle Pyramding max position risk fraction must be a number."
             )
         elif (
-            not value["max_position_risk_frac"] > 0
-            and not value["max_position_risk_frac"] < 1
+            value["max_position_risk_frac"] <= 0
+            or value["max_position_risk_frac"] > 1
         ):
             raise TypeError(
-                "Turtle Pyramid Sizing max position risk fraction must be > zero and < 1."
+                "Turtle Pyramding max position risk fraction must be > zero and < 1."
             )
 
-        # validate max num entry points
+        # validate turtle units
         if not isinstance(value["max_num_entry_points"], int):
             raise TypeError(
-                "Turtle Pyramid Sizing max number of entry points must be an integer."
+                "Turtle Pyramding number of turtle units must be a positive integer."
             )
         elif not value["max_num_entry_points"] > 0:
-            raise TypeError(
-                "Turtle Pyramid Sizing max number of entry points must be > zero"
-            )
+            raise TypeError("Turtle Pyramding number of turtle units must be > zero")
 
         # validate delta N fraction
         if not isinstance(value["delta_N_frac"], int) and not isinstance(
             value["delta_N_frac"], float
         ):
             raise TypeError(
-                "Turtle Pyramid Sizing delta N fraction must be a positive number."
+                "Turtle Pyramding delta N fraction must be a number."
             )
-        elif not value["delta_N_frac"] > 0:
-            raise TypeError("Turtle Pyramid Sizing delta N fraction must be > zero.")
+        elif (
+            value["delta_N_frac"] <= 0
+            or value["delta_N_frac"] > 1
+        ):
+            raise TypeError(
+                "Turtle Pyramding delta N fraction must be > zero and < 1."
+            )
 
-        # validate delta N fraction
+        # validate stop price N frac
         if not isinstance(value["stop_price_N_frac"], int) and not isinstance(
             value["stop_price_N_frac"], float
         ):
-            raise TypeError("Turtle Pyramid Stop Price N fraction must be a number.")
+            raise TypeError(
+                "Turtle Pyramding number of turtle units must be a number."
+            )
 
         # validate risk cap
         if "risk_cap" not in value.keys():
-            warn("ATR Sizing modules without a risk_cap are deprecated and will not be allowed in the future.",
+            warn("Turtle Pyramding modules without a risk_cap are deprecated and will not be allowed in the future.",
                 DeprecationWarning, stacklevel=2)
             value["risk_cap"] = False
         elif not isinstance(value["risk_cap"], bool):
-            raise TypeError("ATR Sizing risk cap must be boolean.")
+            raise TypeError("Turtle Pyramding risk cap must be boolean.")
+        
+        return value
 
 
 # SIGNALS =====================================================
