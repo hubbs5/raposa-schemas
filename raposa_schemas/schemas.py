@@ -1013,16 +1013,6 @@ class TurtleUnitSizing(BaseModel):
             "max_position_risk_frac",
             "num_turtle_units",
         ]
-        if len(key_standard) != len(value):
-            raise ValueError(
-                "Wrong number of parameters used to build Turtle Sizing - please contact us about this bug."
-            )
-        else:
-            for n, key in enumerate(value.keys()):
-                if key != key_standard[n]:
-                    raise ValueError(
-                        "Wrong parameters fed to Turtle Sizing - please contact us about this bug."
-                    )
 
         # validate period
         if not isinstance(value["period"], int):
@@ -1046,8 +1036,8 @@ class TurtleUnitSizing(BaseModel):
                 "Turtle Sizing max position risk fraction must be a number."
             )
         elif (
-            not value["max_position_risk_frac"] > 0
-            and not value["max_position_risk_frac"] < 1
+            value["max_position_risk_frac"] <= 0
+            or value["max_position_risk_frac"] > 1
         ):
             raise TypeError(
                 "Turtle Sizing max position risk fraction must be > zero and < 1."
