@@ -879,18 +879,7 @@ class VOLATILITYSizing(BaseModel):
             "risk_coefficient", 
             "max_position_risk_frac", 
             "risk_cap"
-            ]
-        if len(key_standard) != len(value):
-            raise ValueError(
-                "Wrong number of parameters used to build Volatility Sizing - please contact us about this bug."
-            )
-        else:
-            for n, key in enumerate(value.keys()):
-                if key != key_standard[n]:
-                    raise ValueError(
-                        "Wrong parameters fed to Volatility Sizing - please contact us about this bug."
-                    )
-
+        ]
         # validate period
         if not isinstance(value["period"], int):
             raise TypeError("Volatility Sizing period must be a positive integer.")
@@ -915,8 +904,8 @@ class VOLATILITYSizing(BaseModel):
                 "Volatility Sizing max position risk fraction must be a number."
             )
         elif (
-            not value["max_position_risk_frac"] > 0
-            and not value["max_position_risk_frac"] < 1
+            value["max_position_risk_frac"] <= 0
+            or value["max_position_risk_frac"] > 1
         ):
             raise TypeError(
                 "Volatility Sizing max position risk fraction must be > zero and < 1."
@@ -984,8 +973,8 @@ class ATRSizing(BaseModel):
         ):
             raise TypeError("ATR Sizing max position risk fraction must be a number.")
         elif (
-            not value["max_position_risk_frac"] > 0
-            and not value["max_position_risk_frac"] < 1
+            value["max_position_risk_frac"] <= 0
+            or value["max_position_risk_frac"] > 1
         ):
             raise TypeError(
                 "ATR Sizing max position risk fraction must be > zero and < 1."
