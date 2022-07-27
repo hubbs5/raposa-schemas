@@ -986,6 +986,7 @@ class TurtleUnitSizing(BaseModel):
         "risk_coefficient": 2,
         "max_position_risk_frac": 0.02,
         "num_turtle_units": 1,
+        "risk_cap": False
     }
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # risk coefficient: (0,10) but not quite 0
@@ -1047,6 +1048,15 @@ class TurtleUnitSizing(BaseModel):
             )
         elif not value["num_turtle_units"] > 0:
             raise TypeError("Turtle Sizing number of turtle units must be > zero")
+
+        # validate risk cap
+        if "risk_cap" not in value.keys():
+            warn("Turtle Sizing modules without a risk_cap are deprecated and will not be allowed in the future.",
+                DeprecationWarning, stacklevel=2)
+            value["risk_cap"] = False
+        elif not isinstance(value["risk_cap"], bool):
+            raise TypeError("ATR Sizing risk cap must be boolean.")
+        
         return value
 
 
@@ -1059,6 +1069,7 @@ class TurtlePyramiding(BaseModel):
         "max_num_entry_points": 4,
         "delta_N_frac": 0.5,
         "stop_price_N_frac": -2.0,  # positive for stop profit, negative for stop loss
+        "risk_cap": False
     }
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # risk coefficient: (0,10) but not quite 0
@@ -1075,6 +1086,7 @@ class TurtlePyramiding(BaseModel):
             "max_num_entry_points",
             "delta_N_frac",
             "stop_price_N_frac",
+            "risk_cap"
         ]
         if len(key_standard) != len(value):
             raise ValueError(
@@ -1143,6 +1155,14 @@ class TurtlePyramiding(BaseModel):
             value["stop_price_N_frac"], float
         ):
             raise TypeError("Turtle Pyramid Stop Price N fraction must be a number.")
+
+        # validate risk cap
+        if "risk_cap" not in value.keys():
+            warn("ATR Sizing modules without a risk_cap are deprecated and will not be allowed in the future.",
+                DeprecationWarning, stacklevel=2)
+            value["risk_cap"] = False
+        elif not isinstance(value["risk_cap"], bool):
+            raise TypeError("ATR Sizing risk cap must be boolean.")
 
 
 # SIGNALS =====================================================
