@@ -24,8 +24,8 @@
 #         update signal_translator() in apps\dash_bot_garage\dash_app_utils\utils.py 
 
 from typing import List, Type, Union, Optional
-from xmlrpc.client import boolean
 from pydantic import BaseModel, validator
+from warnings import warn
 
 # List parameters and input ranges for each
 max_signals = 3
@@ -921,14 +921,15 @@ class VOLATILITYSizing(BaseModel):
 
 class ATRSizing(BaseModel):
     name: str = "ATRSizing"
-    params: dict = {"period": 20, "risk_coefficient": 2, "max_position_risk_frac": 0.02}
+    params: dict = {"period": 20, "risk_coefficient": 2, 
+        "max_position_risk_frac": 0.02, "risk_cap": False}
     # param period bound >= 2 and < 1000 for min lags and max lags as well
     # risk coefficient: (0,10) but not quite 0
     # max_position risk fraction (0,1) do not include 0
 
     @validator("params")
     def param_key_check(cls, value):
-        key_standard = ["period", "risk_coefficient", "max_position_risk_frac"]
+        key_standard = ["period", "risk_coefficient", "max_position_risk_frac", "risk_cap"]
         if len(key_standard) != len(value):
             raise ValueError(
                 "Wrong number of parameters used to build ATR Sizing - please contact us about this bug."
@@ -966,6 +967,14 @@ class ATRSizing(BaseModel):
             raise TypeError(
                 "ATR Sizing max position risk fraction must be > zero and < 1."
             )
+
+        # validate risk cap
+        if "risk_cap" not in value.keys():
+            warn("ATR Sizing modules without a risk_cap are deprecated and will not be allowed in the future.",
+                DeprecationWarning, stacklevel=2)
+            value["risk_cap"] = False
+        elif not isinstance(value["risk_cap"], bool):
+            raise TypeError("ATR Sizing risk cap must be boolean.")
 
         return value
 
