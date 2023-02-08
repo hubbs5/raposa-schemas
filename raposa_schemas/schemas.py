@@ -71,7 +71,9 @@ every_indicator = {
     # "Signal is": "BOOLEAN",
     "Bollinger Bands": "BOLLINGER",
     "Band Width": "BAND_WIDTH",
-    "Moving Average Distance": "MAD"
+    "Moving Average Distance": "MAD", 
+    "Fast Stochastic Oscillator": "STOCHASTIC_OSCILLATOR_FAST",
+    "Slow Stochastic Oscillator": "STOCHASTIC_OSCILLATOR_SLOW",
 }
 
 # every indicator listed in buy-tab dropdown
@@ -91,7 +93,10 @@ buy_indicators = {
     "Donchian Channel": "DONCHIAN",
     "Bollinger Bands": "BOLLINGER",
     "Band Width": "BAND_WIDTH",
-    "Moving Average Distance": "MAD"
+    "Moving Average Distance": "MAD",
+    "Fast Stochastic Oscillator": "STOCHASTIC_OSCILLATOR_FAST",
+    "Slow Stochastic Oscillator": "STOCHASTIC_OSCILLATOR_SLOW",
+
 }
 
 # every indicator listed in sell-tab dropdown
@@ -113,7 +118,10 @@ sell_indicators = {
     "Donchian Channel": "DONCHIAN",
     "Bollinger Bands": "BOLLINGER",
     "Band Width": "BAND_WIDTH",
-    "Moving Average Distance": "MAD"
+    "Moving Average Distance": "MAD",
+    "Fast Stochastic Oscillator": "STOCHASTIC_OSCILLATOR_FAST",
+    "Slow Stochastic Oscillator": "STOCHASTIC_OSCILLATOR_SLOW",
+
 }
 
 position_sizings = {
@@ -149,6 +157,8 @@ indicators_with_time_params = {
     "BAND_WIDTH": ["period"],
     "MAD": ["fastSMA_period", "slowSMA_period"],
     "DONCHIAN": ["period"],
+    "STOCHASTIC_OSCILLATOR_FAST":["period"],
+    "STOCHASTIC_OSCILLATOR_SLOW":["period", "dSMAPeriod"],
 }
 
 relations = {"> or =": "geq", "< or =": "leq", ">": "gt", "<": "lt", "=": "eq"}
@@ -846,6 +856,61 @@ class MAD(BaseModel):
             raise ValueError(f"fastSMA_period must be < slowSMA_period")
 
         return value
+
+class STOCHASTIC_OSCILLATOR_SLOW(BaseModel):
+    name: str = "STOCHASTIC_OSCILLATOR_FAST"
+    params: dict = {"period": 14} 
+    needs_comp: bool = True
+    valid_comps: list = ["LEVEL"]
+
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Fast Stochastic Oscillator - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Fast Stochastic Oscillator builder - please contact us about this bug."
+                    )
+                elif not isinstance(value[key], int):
+                    raise TypeError("Fast Stochastic Oscillator inputs must be positive integers.")
+                elif not value[key] > 0:
+                    raise TypeError("Fast Stochastic Oscillator inputs must be > zero.")
+
+        return value
+    
+class STOCHASTIC_OSCILLATOR_SLOW(BaseModel):
+    name: str = "STOCHASTIC_OSCILLATOR_SLOW"
+    params: dict = {"period": 14, "dSMAPeriod": 3} 
+    needs_comp: bool = True
+    valid_comps: list = ["LEVEL"]
+
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = ["period", "dSMAPeriod"]
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Slow Stochastic Oscillator - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Slow Stochastic Oscillator builder - please contact us about this bug."
+                    )
+                elif not isinstance(value[key], int):
+                    raise TypeError("Slow Stochastic Oscillator inputs must be positive integers.")
+                elif not value[key] > 0:
+                    raise TypeError("Slow Stochastic Oscillator inputs must be > zero.")
+                
+                if value['dSMAPeriod'] <= 1: 
+                    raise ValueError("Slow Stochastic Oscillator parameter 'dSMAPeriod' must be > 1.")
+        return value
+
 
 
 # Classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
