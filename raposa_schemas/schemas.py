@@ -857,7 +857,7 @@ class MAD(BaseModel):
 
         return value
 
-class STOCHASTIC_OSCILLATOR_SLOW(BaseModel):
+class STOCHASTIC_OSCILLATOR_FAST(BaseModel):
     name: str = "STOCHASTIC_OSCILLATOR_FAST"
     params: dict = {"period": 14} 
     needs_comp: bool = True
