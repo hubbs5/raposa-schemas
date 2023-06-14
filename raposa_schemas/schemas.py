@@ -69,7 +69,7 @@ every_indicator = {
     "Level": "LEVEL",
     "Donchian Channel": "DONCHIAN",
     # "Signal is": "BOOLEAN",
-    # "Bollinger Bands": "BOLLINGER",
+    "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
@@ -89,7 +89,7 @@ buy_indicators = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Donchian Channel": "DONCHIAN",
-    # "Bollinger Bands": "BOLLINGER",
+    "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
@@ -111,7 +111,7 @@ sell_indicators = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Donchian Channel": "DONCHIAN",
-    # "Bollinger Bands": "BOLLINGER",
+    "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
