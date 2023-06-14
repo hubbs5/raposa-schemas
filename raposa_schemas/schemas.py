@@ -696,14 +696,13 @@ class BOLLINGER(BaseModel):
         "band": "upper",
     }  # "band" in ["upper", "middle", "lower"]
     needs_comp: bool = True
-    valid_comps: list = ["PRICE", "LEVEL"]
+    valid_comps: list = ["PRICE", "LEVEL", "SMA", "EMA", "MACD"]
 
     @validator("params")
     def param_key_check(cls, value):
         key_standard = [
             "period",
-            "numStdDevUpper",
-            "numStdDevLower",
+            "numSTD",
             "price_type",
             "band",
         ]
