@@ -69,7 +69,7 @@ every_indicator = {
     "Level": "LEVEL",
     "Donchian Channel": "DONCHIAN",
     # "Signal is": "BOOLEAN",
-    # "Bollinger Bands": "BOLLINGER",
+    "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
@@ -89,7 +89,7 @@ buy_indicators = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Donchian Channel": "DONCHIAN",
-    # "Bollinger Bands": "BOLLINGER",
+    "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
@@ -111,7 +111,7 @@ sell_indicators = {
     "PSAR": "PSAR",
     "HURST": "HURST",
     "Donchian Channel": "DONCHIAN",
-    # "Bollinger Bands": "BOLLINGER",
+    "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
@@ -134,8 +134,11 @@ position_managements = {
 }
 
 indicators_with_time_params = {
-    "SMA": ["period"],  # Indicators that have to look back in time and the param(s)
-    # that defines the farthest number of days to look back
+    '''
+    Indicators that have to look back in time and the param(s)
+    that defines the farthest number of days to look back
+    '''
+    "SMA": ["period"],
     "EMA": ["period"],
     "MACD": ["slowEMA_period", "fastEMA_period"],
     "MACD_SIGNAL": ["slowEMA_period", "fastEMA_period," "signalEMA_period"],
@@ -412,7 +415,7 @@ class PRICE(BaseModel):
         "price_type": "Close"
     }  # must be in ["High", "Low", "Close", or "Typical"]
     needs_comp: bool = True
-    valid_comps: list = ["SMA", "EMA", "MACD", "ATR", "PRICE_WINDOW"]
+    valid_comps: list = ["SMA", "EMA", "MACD", "ATR", "PRICE_WINDOW", "BOLLINGER"]
 
     @validator("params")
     def param_key_check(cls, value):
@@ -643,6 +646,7 @@ class PSAR(BaseModel):
         "period": 2,  # Number of days to look back to ensure PSAR is in proper range
     }
     needs_comp: bool = True
+    # TODO: Can run PSAR vs other comps
     valid_comps: list = ['BOOLEAN']
 
 
@@ -686,20 +690,19 @@ class BOLLINGER(BaseModel):
     name: str = "BOLLINGER"
     params: dict = {
         "period": 20,
-        "numStdDevUpper": 2,
-        "numStdDevLower": 2,
+        "numSTD": 2,
+        # TODO: Should we include this?
         "price_type": "Typical",  # price_type either "High", "Low", "Close", or "Typical"
         "band": "upper",
     }  # "band" in ["upper", "middle", "lower"]
     needs_comp: bool = True
-    valid_comps: list = ["PRICE", "LEVEL"]
+    valid_comps: list = ["PRICE", "LEVEL", "SMA", "EMA", "MACD"]
 
     @validator("params")
     def param_key_check(cls, value):
         key_standard = [
             "period",
-            "numStdDevUpper",
-            "numStdDevLower",
+            "numSTD",
             "price_type",
             "band",
         ]
@@ -718,18 +721,12 @@ class BOLLINGER(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("Bollinger Band period must be > zero")
 
-        if not isinstance(value["numStdDevUpper"], int) and not isinstance(
-            value["numStdDevUpper"], float
+        if not isinstance(value["numSTD"], int) and not isinstance(
+            value["numSTD"], float
         ):
-            raise TypeError("Bollinger Band numStdDevUpper must be a positive number.")
-        elif not value["numStdDevUpper"] > 0:
-            raise TypeError("Bollinger Band numStdDevUpper must be > zero.")
-        if not isinstance(value["numStdDevLower"], int) and not isinstance(
-            value["numStdDevLower"], float
-        ):
-            raise TypeError("Bollinger Band numStdDevLower must be a positive number.")
-        elif not value["numStdDevLower"] > 0:
-            raise TypeError("Bollinger Band numStdDevLower must be > zero.")
+            raise TypeError("Bollinger Band numSTD must be a positive number.")
+        elif not value["numSTD"] > 0:
+            raise TypeError("Bollinger Band numSTD must be > zero.")
 
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
             raise ValueError("Price type must be High, Low, Close, or Typical.")
