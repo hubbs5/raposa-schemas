@@ -68,7 +68,8 @@ every_indicator = {
     "HURST": "HURST",
     "Level": "LEVEL",
     "Donchian Channel": "DONCHIAN",
-    "Stochastic Oscillator": "STOCHASTIC_OSCILLATOR",
+    "Fast Stochastic Oscillator (%K)": "FAST_STOCHASTIC_OSCILLATOR",
+    "Slow Stochastic Oscillator (%D)": "SLOW_STOCHASTIC_OSCILLATOR",
     # "Signal is": "BOOLEAN",
     "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
@@ -91,7 +92,8 @@ buy_indicators = {
     "HURST": "HURST",
     "Donchian Channel": "DONCHIAN",
     "Bollinger Bands": "BOLLINGER",
-    "Stochastic Oscillator": "STOCHASTIC_OSCILLATOR",
+    "Stochastic Oscillator (%K)": "FAST_STOCHASTIC_OSCILLATOR",
+    "Stochastic Oscillator (%D)": "SLOW_STOCHASTIC_OSCILLATOR",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
@@ -114,6 +116,8 @@ sell_indicators = {
     "HURST": "HURST",
     "Donchian Channel": "DONCHIAN",
     "Bollinger Bands": "BOLLINGER",
+    "Stochastic Oscillator (%K)": "FAST_STOCHASTIC_OSCILLATOR",
+    "Stochastic Oscillator (%D)": "SLOW_STOCHASTIC_OSCILLATOR",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
@@ -154,6 +158,8 @@ indicators_with_time_params = {
     "BAND_WIDTH": ["period"],
     "MAD": ["fastSMA_period", "slowSMA_period"],
     "DONCHIAN": ["period"],
+    "FAST_STOCHASTIC_OSCILLATOR": ["period"],
+    "SLOW_STOCHASTIC_OSCILLATOR": ["period", "dSMAPeriod"],
 }
 
 relations = {"> or =": "geq", "< or =": "leq", ">": "gt", "<": "lt", "=": "eq"}
@@ -687,9 +693,39 @@ class HURST(BaseModel):
             )
         return value
 
+class FAST_STOCHASTIC_OSCILLATOR(BaseModel):
+    name: str = "FAST_STOCHASTIC_OSCILLATOR"
+    params: dict = {
+        "period": 14, # Sets period for %K (following naming PAT convention)
+    }
+    needs_comp: bool = True
+    valid_comps: list = ["LEVEL"]
 
-class STOCHASTIC_OSCILLATOR(BaseModel):
-    name: str = "STOCHASTIC_OSCILLATOR"
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = [
+            "period",
+        ]
+        # TODO: Move this to a standard function
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Stochastic Oscillator - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Stochastic Oscillator - please contact us about this bug.")
+        if not isinstance(value["period"], int):
+            raise TypeError("Stochastic Oscillator period must be a positive integer.")
+        if not value["period"] > 0:
+            raise TypeError("Stochastic Oscillator period must be > zero")
+
+        return value
+
+
+class SLOW_STOCHASTIC_OSCILLATOR(BaseModel):
+    name: str = "SLOW_STOCHASTIC_OSCILLATOR"
     params: dict = {
         "period": 14, # Sets period for %K (following naming PAT convention)
         "dSMAPeriod": 3, # Sets period for SMA for %D (following naming PAT convention)
