@@ -68,6 +68,7 @@ every_indicator = {
     "HURST": "HURST",
     "Level": "LEVEL",
     "Donchian Channel": "DONCHIAN",
+    "Stochastic Oscillator": "STOCHASTIC_OSCILLATOR",
     # "Signal is": "BOOLEAN",
     "Bollinger Bands": "BOLLINGER",
     # "Band Width": "BAND_WIDTH",
@@ -90,6 +91,7 @@ buy_indicators = {
     "HURST": "HURST",
     "Donchian Channel": "DONCHIAN",
     "Bollinger Bands": "BOLLINGER",
+    "Stochastic Oscillator": "STOCHASTIC_OSCILLATOR",
     # "Band Width": "BAND_WIDTH",
     # "Moving Average Distance": "MAD"
 }
@@ -686,6 +688,42 @@ class HURST(BaseModel):
         return value
 
 
+class STOCHASTIC_OSCILLATOR(BaseModel):
+    name: str = "STOCHASTIC_OSCILLATOR"
+    params: dict = {
+        "period": 14, # Sets period for %K (following naming PAT convention)
+        "dSMAPeriod": 3, # Sets period for SMA for %D (following naming PAT convention)
+    }
+    needs_comp: bool = True
+    valid_comps: list = ["LEVEL"]
+
+    @validator("params")
+    def param_key_check(cls, value):
+        key_standard = [
+            "period",
+            "dSMAPeriod",
+        ]
+        # TODO: Move this to a standard function
+        if len(key_standard) != len(value):
+            raise ValueError(
+                "Wrong number of parameters used to build Stochastic Oscillator - please contact us about this bug."
+            )
+        else:
+            for n, key in enumerate(value.keys()):
+                if key != key_standard[n]:
+                    raise ValueError(
+                        "Wrong parameters fed to Stochastic Oscillator - please contact us about this bug.")
+        if not isinstance(value["period"], int):
+            raise TypeError("Stochastic Oscillator period must be a positive integer.")
+        if not isinstance(value["dSMAPeriod"], int):
+            raise TypeError("Stochastic Oscillator dSMAPeriod must be a positive integer.")
+        if not value["period"] > 0:
+            raise TypeError("Stochastic Oscillator period must be > zero")
+        if not value["dSMAPeriod"] > 0:
+            raise TypeError("Stochastic Oscillator dSMAPeriod must be > zero")
+
+        return value
+        
 class BOLLINGER(BaseModel):
     name: str = "BOLLINGER"
     params: dict = {
@@ -783,7 +821,10 @@ class BAND_WIDTH(BaseModel):
 
 class DONCHIAN(BaseModel):
     name: str = "DONCHIAN"
-    params: dict = {"period": 20, "channel": "middle"}
+    params: dict = {
+        "period": 20, 
+        "channel": "middle"
+        }
     needs_comp: bool = True
     valid_comps: list = ["PRICE"]
 
@@ -845,7 +886,8 @@ class MAD(BaseModel):
 
 
 # Classes that can be initial POSITION SIZING or Risk Management (position management during rebalance) ============================================="
-
+####### Risk Management Modules ########
+# TODO: Move to new file?
 
 class NoRiskManagement(BaseModel):
     name: str = "NoRiskManagement"
