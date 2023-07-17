@@ -431,7 +431,7 @@ class PRICE(BaseModel):
                         "Wrong parameters fed to price signal builder - please contact us about this bug"
                     )
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
-            raise ValueError("Price type must be High, Low, Close, or Typical.")
+            raise ValueError("Price type must be High, Low, Close, or Typical (434).")
         return value
 
 
@@ -468,7 +468,7 @@ class PRICE_WINDOW(BaseModel):
             raise ValueError("Breakout signal max or min must be...max or min.")
 
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
-            raise ValueError("Price type must be High, Low, Close, or Typical.")
+            raise ValueError("Price type must be High, Low, Close, or Typical (471).")
         return value
 
 
@@ -691,9 +691,9 @@ class BOLLINGER(BaseModel):
     params: dict = {
         "period": 20,
         "numSTD": 2,
+        "band": "upper",
         # TODO: Should we include this?
         "price_type": "Typical",  # price_type either "High", "Low", "Close", or "Typical"
-        "band": "upper",
     }  # "band" in ["upper", "middle", "lower"]
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL", "SMA", "EMA", "MACD"]
@@ -703,8 +703,8 @@ class BOLLINGER(BaseModel):
         key_standard = [
             "period",
             "numSTD",
-            "price_type",
             "band",
+            "price_type",
         ]
         if len(key_standard) != len(value):
             raise ValueError(
@@ -729,7 +729,7 @@ class BOLLINGER(BaseModel):
             raise TypeError("Bollinger Band numSTD must be > zero.")
 
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
-            raise ValueError("Price type must be High, Low, Close, or Typical.")
+            raise ValueError("Price type must be High, Low, Close, or Typical (732).")
         if value["band"] not in ["upper", "middle", "lower"]:
             raise ValueError("Band must be 'upper', 'middle', or 'lower'.")
         return value
@@ -778,7 +778,7 @@ class BAND_WIDTH(BaseModel):
             raise TypeError("Band Width numStdDevLower must be > zero.")
 
         if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
-            raise ValueError("Price type must be High, Low, Close, or Typical.")
+            raise ValueError("Price type must be High, Low, Close, or Typical (781).")
         return value
 
 
