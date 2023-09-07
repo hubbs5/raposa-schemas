@@ -23,11 +23,14 @@
 #     5) update the bot garage so that it can process the indicator in new strategies
 #         update signal_translator() in apps\dash_bot_garage\dash_app_utils\utils.py 
 
-from typing import List, Type, Union, Optional
-from pydantic import BaseModel, validator
 from warnings import warn
+from abc import abstractmethod, ABC
+from pydantic import BaseModel, validator, Field
+from typing import List, Type, Union, Optional, Dict, Any
+
 
 # List parameters and input ranges for each
+# TODO: Best to control these in Django
 max_signals = 3
 max_instruments = 25
 
@@ -187,31 +190,79 @@ as required to run in pyalgotrade"""
 
 "INDICATORS ===================================================="
 
+class AbstractIndicatorModel(BaseModel, ABC):
+    name: str = Field(..., description="Name of the indicator")
+    params: Dict = Field(..., description="Parameters for the indicator")
+    needs_comp: bool = Field(..., description="Does the indicator need a comparison?")
+    valid_comps: List = Field(..., description="Valid comparisons for the indicator")
 
-class SMA(BaseModel):
+    @abstractmethod
+    def param_check(self):
+        raise NotImplementedError
+
+def _param_key_check(params, key_standard):
+    if len(key_standard) != len(params):
+        raise ValueError(
+            "Wrong number of parameters used to build indicator - please contact us about this bug."
+        )
+    assert key_standard == list(params.keys()), "Wrong parameters fed to indicator builder - please contact us about this bug."
+
+
+def _period_check(period, min=1, max=1000):
+    if not isinstance(period, int):
+        raise TypeError("Period must be a positive integer.")
+    elif not period > 0:
+        raise TypeError("Period must be > zero.")
+    elif not period < max:
+        raise TypeError(f"Period must be < {max}")
+    elif not period > min:
+        raise TypeError(f"Period must be > {min}")
+    return period
+
+
+def _float_check(value, min=0, max=100, description="Value"):
+    if not isinstance(value, float) and not isinstance(value, int):
+        raise TypeError(f"{description} must be a number.")
+    elif not value > min:
+        raise TypeError(f"{description} must be > {min}")
+    elif not value < max:
+        raise TypeError(f"{description} must be < {max}")
+    return value
+
+def _int_check(value, min=0, max=100, description="Value"):
+    if not isinstance(value, int):
+        raise TypeError(f"{description} must be a number.")
+    elif not value > min:
+        raise TypeError(f"{description} must be > {min}")
+    elif not value < max:
+        raise TypeError(f"{description} must be < {max}")
+    return value
+
+def _str_check(value: str, values: list, description: str="Value"):
+    if not isinstance(value, str):
+        raise TypeError(f"{description} must be a string.")
+    elif value not in values:
+        raise TypeError(f"{description} must be one of {values}")
+    return value
+
+def _bool_check(value: bool, description: str="Value"):
+    if not isinstance(value, bool):
+        raise TypeError(f"{description} must be a boolean.")
+    return value
+
+class SMA(AbstractIndicatorModel):
     name: str = "SMA"
     params: dict = {"period": 10}
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "PRICE"]
     # param bound >= 2 and < 1000
 
-    @validator("params")
-    def param_key_check(cls, value):
+    @validator("params", always=True)
+    def param_check(cls, value):
         key_standard = ["period"]
-        if len(key_standard) != len(value):
-            raise ValueError(
-                "Wrong number of parameters used to build SMA - please contact us about this bug."
-            )
-        else:
-            for n, key in enumerate(value.keys()):
-                if key != key_standard[n]:
-                    raise ValueError(
-                        "Wrong parameters fed to SMA signal builder - please contact us about this bug."
-                    )
-                elif not isinstance(value[key], int):
-                    raise TypeError("SMA period must be a postive integer.")
-                elif not value[key] > 0:
-                    raise TypeError("SMA period must be > zero.")
+        _param_key_check(value, key_standard)
+        _period_check(value["period"])
+ 
         return value
 
 
@@ -366,6 +417,9 @@ class STOP_PRICE(BaseModel):
             ):
                 raise TypeError("Stop price % change must be a number.")
 
+            if not value["percent_change"] > -100:
+                raise ValueError(f"Stop price % change must be between -100 and 10000")
+
             if not isinstance(value["trailing"], bool):
                 raise TypeError("'Trailing' value must be boolean.")
         return value
@@ -404,6 +458,8 @@ class ATR_STOP_PRICE(BaseModel):
             value["stop_price_ATR_frac"], int
         ):
             raise TypeError("ATR stop price fraction must be a number.")
+        if value["stop_price_ATR_frac"] < -10 or value["stop_price_ATR_frac"] > 10:
+            raise ValueError("ATR stop price fraction must be > -10 and < 10")
         if not isinstance(value["trailing"], bool):
             raise TypeError("'Trailing' value must be boolean.")
         return value
@@ -413,7 +469,8 @@ class PRICE(BaseModel):
     name: str = "PRICE"
     params: dict = {
         "price_type": "Close"
-    }  # must be in ["High", "Low", "Close", or "Typical"]
+    }  # must be in ["Open", "High", "Low", "Close", or "Typical"]
+    # TODO: Remove case sensitivity
     needs_comp: bool = True
     valid_comps: list = ["SMA", "EMA", "MACD", "ATR", "PRICE_WINDOW", "BOLLINGER"]
 
@@ -430,8 +487,8 @@ class PRICE(BaseModel):
                     raise ValueError(
                         "Wrong parameters fed to price signal builder - please contact us about this bug"
                     )
-        if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
-            raise ValueError("Price type must be High, Low, Close, or Typical.")
+        if value["price_type"] not in ["Open", "High", "Low", "Close", "Typical"]:
+            raise ValueError("Price type must be Open, High, Low, Close, or Typical.")
         return value
 
 
@@ -440,7 +497,7 @@ class PRICE_WINDOW(BaseModel):
     params: dict = {
         "period": 30,  # Number of days to look back
         "max_or_min": "max",  # must be in ["max" or "min"]
-        "price_type": "High",  # must be in ["High", "Low", "Close", "Typical"]
+        "price_type": "High",  # must be in ["Open", "High", "Low", "Close", "Typical"]
     }
     needs_comp: bool = True
     valid_comps: list = ["PRICE", "LEVEL"]
@@ -467,7 +524,7 @@ class PRICE_WINDOW(BaseModel):
         if value["max_or_min"] not in ["max", "min"]:
             raise ValueError("Breakout signal max or min must be...max or min.")
 
-        if value["price_type"] not in ["High", "Low", "Close", "Typical"]:
+        if value["price_type"] not in ["High", "Low", "Close", "Typical", "Open"]:
             raise ValueError("Price type must be High, Low, Close, or Typical.")
         return value
 
@@ -568,8 +625,10 @@ class LEVEL(BaseModel):
                     value[key], int
                 ):
                     raise TypeError("Level must be a positive number.")
-                elif not value[key] > 0:
+                elif not value[key] >= 0:
                     raise TypeError("Level must be > zero.")
+                elif not value[key] <= 100:
+                    raise TypeError("Level must be <= 100.")
         return value
 
 
@@ -632,7 +691,7 @@ class VOLATILITY(BaseModel):
         return value
 
 
-class PSAR(BaseModel):
+class PSAR(AbstractIndicatorModel):
     """
     Parabolic SAR
     """
@@ -648,6 +707,19 @@ class PSAR(BaseModel):
     needs_comp: bool = True
     # TODO: Can run PSAR vs other comps
     valid_comps: list = ['BOOLEAN']
+
+    @validator("params", always=True)
+    def param_check(cls, value):
+        key_standard = ["type_indicator", "init_acceleration_factor",
+                        "acceleration_factor_step", "max_acceleration_factor",
+                        "period"]
+        _param_key_check(value, key_standard)
+        _period_check(value["period"])
+        _str_check(value["type_indicator"], values=["reversal_toUptrend", "reversal_toDowntrend"],
+                   description="PSAR type indicator")
+        _float_check(value["init_acceleration_factor"], min=0, max=1, description="PSAR initial acceleration factor")
+        _float_check(value["acceleration_factor_step"], min=0, max=1, description="PSAR acceleration factor step")
+        _float_check(value["max_acceleration_factor"], min=0, max=1, description="PSAR max acceleration factor")
 
 
 class HURST(BaseModel):
