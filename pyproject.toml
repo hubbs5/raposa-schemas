@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "raposa-schemas"
+version = "0.0.99"
+description = "Provides schemas for a consistent interface between UI and back-end API."
+authors = ["Christian Hubbs christian@raposa.trade", "Owais Sarwar owais@raposa.trade"]
+license = "Not licensed for re-use."
+homepage = "https://github.com/hubbs5/raposa-schemas"
+
+[tool.poetry.dependencies]
+python = ">=3.8,<4.0"
+pydantic = "^1.8.2"
+typing-extensions = "^3.10.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
+black = "^23.7.0"
+pytest-mock = "^3.11.1"
+pytest-cov = "^4.1.0"
+pytest-dependency = "^0.5.1"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.urls]
+repository = "https://github.com/hubbs5/raposa-schemas"
+
+[tool.pytest.ini_options]
+python_files = ["tests.py", "test_*.py", "*_tests.py"]

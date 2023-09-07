@@ -1,7 +1,6 @@
+import pytest
+import traceback
 from copy import copy
-import common
-
-common.importPath()
 
 from raposa_schemas import schemas
 
@@ -13,7 +12,17 @@ class TestATRSizing:
         "risk_cap": True
     }
 
-    def testValidSchema(self):
+    def catch_invalid_schema(self, params):
+        try:
+            out = schemas.ATRSizing(params=params)
+            failure = False
+        except:
+            failure = True
+            out = traceback.format_exc()
+        
+        return failure, out
+
+    def test_valid_schema(self):
         out = None
         try:
             out = schemas.ATRSizing(params=self.atr_sizing_dict)
@@ -23,7 +32,7 @@ class TestATRSizing:
 
         assert success, f"Valid schema returns error. Have defaults been updated?\n{out}"
 
-    def testOldValidSchema0(self):
+    def test_old_valid_schema(self):
         '''
         Test schema created before risk_cap was introduced
         '''
@@ -43,67 +52,39 @@ class TestATRSizing:
 
     # The following tests are looking to ensure the schema breaks as expected
     # and function by changing one of the parameters at a time
-    def testInvalidSchema0(self):
+    @pytest.mark.parametrize("max_position_risk_frac", [-1, 0, 2])
+    def test_invalid_max_position_risk_frac(self, max_position_risk_frac):
         '''
-        max_position_risk_frac <= 1
+        0 < max_position_risk_frac <= 1
         '''
         atr_sizing_dict = copy(self.atr_sizing_dict)
-        atr_sizing_dict["max_position_risk_frac"] = 10
-        out = None
+        atr_sizing_dict["max_position_risk_frac"] = max_position_risk_frac
 
-        try:
-            out = schemas.ATRSizing(params=atr_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(atr_sizing_dict)
         
         assert failure, f"max_position_risk_frac upper bound not being enforced:\n{out}"
 
-    def testInvalidSchema1(self):
-        '''
-        max_position_risk_frac > 0
-        '''
-        atr_sizing_dict = copy(self.atr_sizing_dict)
-        atr_sizing_dict["max_position_risk_frac"] = -1
-        out = None
-
-        try:
-            out = schemas.ATRSizing(params=atr_sizing_dict)
-            failure = False
-        except:
-            failure = True
-
-        assert failure, f"max_position_risk_frac lower bound not being enforced:\n{out}"
-
-    def testInvalidSchema2(self):
+    @pytest.mark.parametrize("period", [-1, 0])
+    def test_invalid_period(self, period):
         '''
         period must be > 0
         '''
         atr_sizing_dict = copy(self.atr_sizing_dict)
-        atr_sizing_dict["period"] = -1
-        out = None
+        atr_sizing_dict["period"] = period
 
-        try:
-            out = schemas.ATRSizing(params=atr_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(atr_sizing_dict)
         
         assert failure, f"{out}"
 
-    def testInvalidSchema3(self):
+    @pytest.mark.parametrize("risk_coefficient", [-1, 0])
+    def test_invalid_risk_coefficient(self, risk_coefficient):
         '''
         risk_coefficient must be > 0
         '''
         atr_sizing_dict = copy(self.atr_sizing_dict)
-        atr_sizing_dict["risk_coefficient"] = -1
-        out = None
+        atr_sizing_dict["risk_coefficient"] = risk_coefficient
 
-        try:
-            out = schemas.ATRSizing(params=atr_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(atr_sizing_dict)
         
         assert failure, f"{out}"
 
@@ -116,7 +97,17 @@ class TestVolSizing:
         "risk_cap": True
     }
 
-    def testValidSchema(self):
+    def catch_invalid_schema(self, params):
+        try:
+            out = schemas.VOLATILITYSizing(params=params)
+            failure = False
+        except:
+            failure = True
+            out = traceback.format_exc()
+        
+        return failure, out
+    
+    def test_valid_schema(self):
         out = None
         try:
             out = schemas.VOLATILITYSizing(params=self.vol_sizing_dict)
@@ -126,7 +117,7 @@ class TestVolSizing:
 
         assert success, f"Valid schema returns error. Have defaults been updated?\n{out}"
 
-    def testOldValidSchema0(self):
+    def test_old_valid_schema0(self):
         '''
         Test schema created before risk_cap was introduced
         '''
@@ -146,67 +137,39 @@ class TestVolSizing:
 
     # The following tests are looking to ensure the schema breaks as expected
     # and function by changing one of the parameters at a time
-    def testInvalidSchema0(self):
+    @pytest.mark.parametrize("max_position_risk_frac", [-1, 0, 2])
+    def test_invalid_max_position_risk_frac(self, max_position_risk_frac):
         '''
-        max_position_risk_frac <= 1
-        '''
-        vol_sizing_dict = copy(self.vol_sizing_dict)
-        vol_sizing_dict["max_position_risk_frac"] = 10
-        out = None
-
-        try:
-            out = schemas.VOLATILITYSizing(params=vol_sizing_dict)
-            failure = False
-        except:
-            failure = True
-        
-        assert failure, f"max_position_risk_frac upper bound not being enforced:\n{out}"
-
-    def testInvalidSchema1(self):
-        '''
-        max_position_risk_frac > 0
+        0 < max_position_risk_frac <= 1
         '''
         vol_sizing_dict = copy(self.vol_sizing_dict)
-        vol_sizing_dict["max_position_risk_frac"] = -1
-        out = None
+        vol_sizing_dict["max_position_risk_frac"] = max_position_risk_frac
 
-        try:
-            out = schemas.VOLATILITYSizing(params=vol_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(vol_sizing_dict)
 
         assert failure, f"max_position_risk_frac lower bound not being enforced:\n{out}"
 
-    def testInvalidSchema2(self):
+    @pytest.mark.parametrize("period", [-1, 0])
+    def test_invalid_period(self, period):
         '''
         period must be > 0
         '''
         vol_sizing_dict = copy(self.vol_sizing_dict)
-        vol_sizing_dict["period"] = -1
-        out = None
+        vol_sizing_dict["period"] = period
 
-        try:
-            out = schemas.VOLATILITYSizing(params=vol_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(vol_sizing_dict)
         
         assert failure, f"{out}"
 
-    def testInvalidSchema3(self):
+    @pytest.mark.parametrize("risk_coefficient", [-1, 0])
+    def test_invalid_risk_coef(self, risk_coefficient):
         '''
         risk_coefficient must be > 0
         '''
         vol_sizing_dict = copy(self.vol_sizing_dict)
-        vol_sizing_dict["risk_coefficient"] = -1
-        out = None
+        vol_sizing_dict["risk_coefficient"] = risk_coefficient
 
-        try:
-            out = schemas.VOLATILITYSizing(params=vol_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(vol_sizing_dict)
         
         assert failure, f"{out}"
 
@@ -220,7 +183,17 @@ class TestTurtleUnitSizing:
         "risk_cap": True
     }
 
-    def testValidSchema(self):
+    def catch_invalid_schema(self, params):
+        try:
+            out = schemas.TurtleUnitSizing(params=params)
+            failure = False
+        except:
+            failure = True
+            out = traceback.format_exc()
+        
+        return failure, out
+
+    def test_valid_schema(self):
         out = None
         try:
             out = schemas.TurtleUnitSizing(params=self.turtle_sizing_dict)
@@ -230,7 +203,7 @@ class TestTurtleUnitSizing:
 
         assert success, f"Valid schema returns error. Have defaults been updated?\n{out}"
 
-    def testOldValidSchema0(self):
+    def test_old_valid_schema(self):
         '''
         Test schema created before risk_cap was introduced
         '''
@@ -250,67 +223,39 @@ class TestTurtleUnitSizing:
 
     # The following tests are looking to ensure the schema breaks as expected
     # and function by changing one of the parameters at a time
-    def testInvalidSchema0(self):
+    @pytest.mark.parametrize("max_position_risk_frac", [-1, 0, 2])
+    def test_invalid_max_position_risk_frac(self, max_position_risk_frac):
         '''
-        max_position_risk_frac <= 1
+        0 < max_position_risk_frac <= 1
         '''
         turtle_sizing_dict = copy(self.turtle_sizing_dict)
-        turtle_sizing_dict["max_position_risk_frac"] = 10
-        out = None
+        turtle_sizing_dict["max_position_risk_frac"] = max_position_risk_frac
 
-        try:
-            out = schemas.TurtleUnitSizing(params=turtle_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(turtle_sizing_dict)
         
         assert failure, f"max_position_risk_frac upper bound not being enforced:\n{out}"
 
-    def testInvalidSchema1(self):
-        '''
-        max_position_risk_frac > 0
-        '''
-        turtle_sizing_dict = copy(self.turtle_sizing_dict)
-        turtle_sizing_dict["max_position_risk_frac"] = -1
-        out = None
-
-        try:
-            out = schemas.TurtleUnitSizing(params=turtle_sizing_dict)
-            failure = False
-        except:
-            failure = True
-
-        assert failure, f"max_position_risk_frac lower bound not being enforced:\n{out}"
-
-    def testInvalidSchema2(self):
+    @pytest.mark.parametrize("period", [-1, 0])
+    def test_invalid_period(self, period):
         '''
         period must be > 0
         '''
         turtle_sizing_dict = copy(self.turtle_sizing_dict)
-        turtle_sizing_dict["period"] = -1
-        out = None
+        turtle_sizing_dict["period"] = period
 
-        try:
-            out = schemas.TurtleUnitSizing(params=turtle_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(turtle_sizing_dict)
         
         assert failure, f"{out}"
 
-    def testInvalidSchema3(self):
+    @pytest.mark.parametrize("risk_coefficient", [-1, 0])
+    def test_invalid_risk_coefficient(self, risk_coefficient):
         '''
         risk_coefficient must be > 0
         '''
         turtle_sizing_dict = copy(self.turtle_sizing_dict)
-        turtle_sizing_dict["risk_coefficient"] = -1
-        out = None
+        turtle_sizing_dict["risk_coefficient"] = risk_coefficient
 
-        try:
-            out = schemas.TurtleUnitSizing(params=turtle_sizing_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(turtle_sizing_dict)
         
         assert failure, f"{out}"
 
@@ -326,7 +271,17 @@ class TestTurtlePyramiding:
         "risk_cap": True
     }
 
-    def testValidSchema(self):
+    def catch_invalid_schema(self, params):
+        try:
+            out = schemas.TurtlePyramiding(params=params)
+            failure = False
+        except:
+            failure = True
+            out = traceback.format_exc()
+        
+        return failure, out
+
+    def test_valid_schema(self):
         out = None
         try:
             out = schemas.TurtlePyramiding(params=self.turtle_pyr_dict)
@@ -336,7 +291,7 @@ class TestTurtlePyramiding:
 
         assert success, f"Valid schema returns error. Have defaults been updated?\n{out}"
 
-    def testOldValidSchema0(self):
+    def test_old_valid_schema(self):
         '''
         Test schema created before risk_cap was introduced
         '''
@@ -356,98 +311,74 @@ class TestTurtlePyramiding:
 
     # The following tests are looking to ensure the schema breaks as expected
     # and function by changing one of the parameters at a time
-    def testInvalidSchema0(self):
+    @pytest.mark.parametrize("max_position_risk_frac", [-1, 0, 2])
+    def test_invalid_max_position_risk_frac(self, max_position_risk_frac):
         '''
-        max_position_risk_frac <= 1
+        0 < max_position_risk_frac <= 1
         '''
         turtle_pyr_dict = copy(self.turtle_pyr_dict)
-        turtle_pyr_dict["max_position_risk_frac"] = 10
-        out = None
+        turtle_pyr_dict["max_position_risk_frac"] = max_position_risk_frac
 
-        try:
-            out = schemas.TurtlePyramiding(params=turtle_pyr_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(turtle_pyr_dict)
         
         assert failure, f"max_position_risk_frac upper bound not being enforced:\n{out}"
 
-    def testInvalidSchema1(self):
-        '''
-        max_position_risk_frac > 0
-        '''
-        turtle_pyr_dict = copy(self.turtle_pyr_dict)
-        turtle_pyr_dict["max_position_risk_frac"] = -1
-        out = None
-
-        try:
-            out = schemas.TurtlePyramiding(params=turtle_pyr_dict)
-            failure = False
-        except:
-            failure = True
-
-        assert failure, f"max_position_risk_frac lower bound not being enforced:\n{out}"
-
-    def testInvalidSchema2(self):
+    @pytest.mark.parametrize("period", [-1, 0])
+    def test_invalid_period(self, period):
         '''
         period must be > 0
         '''
         turtle_pyr_dict = copy(self.turtle_pyr_dict)
-        turtle_pyr_dict["period"] = -1
-        out = None
+        turtle_pyr_dict["period"] = period
 
-        try:
-            out = schemas.TurtlePyramiding(params=turtle_pyr_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(turtle_pyr_dict)
         
         assert failure, f"{out}"
 
-    def testInvalidSchema3(self):
+    @pytest.mark.parametrize("risk_coefficient", [-1, 0])
+    def test_invalid_risk_coefficient(self, risk_coefficient):
         '''
         risk_coefficient must be > 0
         '''
         turtle_pyr_dict = copy(self.turtle_pyr_dict)
-        turtle_pyr_dict["risk_coefficient"] = -1
-        out = None
+        turtle_pyr_dict["risk_coefficient"] = risk_coefficient
 
-        try:
-            out = schemas.TurtlePyramiding(params=turtle_pyr_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(turtle_pyr_dict)
         
         assert failure, f"{out}"
 
-    def testInvalidSchema4(self):
+    @pytest.mark.parametrize("stop_price_N_frac", ["x", None])
+    def test_invalid_stop_price_N_frac_type(self, stop_price_N_frac):
         '''
         stop_price_N_frac must be a number
         '''
         turtle_pyr_dict = copy(self.turtle_pyr_dict)
-        turtle_pyr_dict["stop_price_N_frac"] = "x"
-        out = None
+        turtle_pyr_dict["stop_price_N_frac"] = stop_price_N_frac
 
-        try:
-            out = schemas.TurtlePyramiding(params=turtle_pyr_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(turtle_pyr_dict)
         
         assert failure, f"{out}"
 
-    def testInvalidSchema5(self):
+    @pytest.mark.parametrize("delta_N_frac", [-1, 0, None, "X"])
+    def testInvalidSchema5(self, delta_N_frac):
         '''
-        delta_N_frac must be a number
+        0 < delta_N_frac <= 1
         '''
         turtle_pyr_dict = copy(self.turtle_pyr_dict)
-        turtle_pyr_dict["delta_N_frac"] = "y"
-        out = None
+        turtle_pyr_dict["delta_N_frac"] = delta_N_frac
 
-        try:
-            out = schemas.TurtlePyramiding(params=turtle_pyr_dict)
-            failure = False
-        except:
-            failure = True
+        failure, out = self.catch_invalid_schema(turtle_pyr_dict)
         
+        assert failure, f"{out}"
+
+    @pytest.mark.parametrize("max_num_entry_points", [-1, 0, None, "X"])
+    def test_invalid_max_num_entry_points(self, max_num_entry_points):
+        '''
+        max_num_entry_points must be an integer > 0
+        '''
+        turtle_pyr_dict = copy(self.turtle_pyr_dict)
+        turtle_pyr_dict["max_num_entry_points"] = max_num_entry_points
+
+        failure, out = self.catch_invalid_schema(turtle_pyr_dict)
+
         assert failure, f"{out}"

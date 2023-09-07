@@ -1060,8 +1060,8 @@ class TurtlePyramiding(BaseModel):
         "risk_cap": False
     }
     # param period bound >= 2 and < 1000 for min lags and max lags as well
-    # risk coefficient: (0,10) but not quite 0
-    # max_position risk fraction (0,1) do not include 0
+    # risk coefficient: (0, 10) but not quite 0
+    # max_position risk fraction (0, 1) do not include 0
     # number of turtle units must be > 0
 
     @validator("params")
@@ -1082,7 +1082,7 @@ class TurtlePyramiding(BaseModel):
         elif not value["period"] > 0:
             raise TypeError("Turtle Pyramding period must be > zero")
 
-        # validaet risk coefficient
+        # validate risk coefficient
         if not isinstance(value["risk_coefficient"], int) and not isinstance(
             value["risk_coefficient"], float
         ):
@@ -1111,7 +1111,7 @@ class TurtlePyramiding(BaseModel):
                 "Turtle Pyramding number of turtle units must be a positive integer."
             )
         elif not value["max_num_entry_points"] > 0:
-            raise TypeError("Turtle Pyramding number of turtle units must be > zero")
+            raise ValueError("Turtle Pyramding number of turtle units must be > zero")
 
         # validate delta N fraction
         if not isinstance(value["delta_N_frac"], int) and not isinstance(
