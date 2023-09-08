@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "raposa-schemas"
-version = "0.0.99"
+version = "0.1.0"
 description = "Provides schemas for a consistent interface between UI and back-end API."
 authors = ["Christian Hubbs christian@raposa.trade", "Owais Sarwar owais@raposa.trade"]
 license = "Not licensed for re-use."

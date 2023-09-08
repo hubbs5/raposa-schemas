@@ -2,7 +2,7 @@ import pytest
 import traceback
 from copy import deepcopy
 
-from raposa_schemas import schemas
+from raposa_schemas.indicator_schemas import *
 
 class IndicatorBaseModel:
 
@@ -34,7 +34,7 @@ class IndicatorBaseModel:
         assert success, f"{out}"
 
 class TestSMA(IndicatorBaseModel):
-    schema = schemas.SMA
+    schema = SMA
     params = {
         "period": 20,
     }
@@ -52,7 +52,7 @@ class TestSMA(IndicatorBaseModel):
 
 
 class TestEMA(IndicatorBaseModel):
-    schema = schemas.EMA
+    schema = EMA
     params = {
         "period": 20,
     }
@@ -70,7 +70,7 @@ class TestEMA(IndicatorBaseModel):
 
 
 class TestMACD(IndicatorBaseModel):
-    schema = schemas.MACD
+    schema = MACD
     params = {
         "fastEMA_period": 12,
         "slowEMA_period": 26,
@@ -97,7 +97,7 @@ class TestMACD(IndicatorBaseModel):
 
 
 class TestMACDSignal(IndicatorBaseModel):
-    schema = schemas.MACD_SIGNAL
+    schema = MACD_SIGNAL
     params = {
         "fastEMA_period": 12,
         "slowEMA_period": 26,
@@ -133,7 +133,7 @@ class TestMACDSignal(IndicatorBaseModel):
 
 
 class TestRSI(IndicatorBaseModel):
-    schema = schemas.RSI
+    schema = RSI
     params = {
         "period": 14,
     }
@@ -151,7 +151,7 @@ class TestRSI(IndicatorBaseModel):
 
 
 class TestStopPrice(IndicatorBaseModel):
-    schema = schemas.STOP_PRICE
+    schema = STOP_PRICE
     params = {
         "percent_change": 10,
         "trailing": False,
@@ -179,7 +179,7 @@ class TestStopPrice(IndicatorBaseModel):
 
 
 class TestATRStopPrice(IndicatorBaseModel):
-    schema = schemas.ATR_STOP_PRICE
+    schema = ATR_STOP_PRICE
     params = {
         "period": 14,
         "stop_price_ATR_frac": 3,
@@ -217,7 +217,7 @@ class TestATRStopPrice(IndicatorBaseModel):
 
 
 class TestPrice(IndicatorBaseModel):
-    schema = schemas.PRICE
+    schema = PRICE
     params = {
         "price_type": "Close"
     }
@@ -236,7 +236,7 @@ class TestPrice(IndicatorBaseModel):
 
 
 class TestPriceWindow(IndicatorBaseModel):
-    schema = schemas.PRICE_WINDOW
+    schema = PRICE_WINDOW
     params = {
         "period": 20,
         "max_or_min": "max",
@@ -277,7 +277,7 @@ class TestPriceWindow(IndicatorBaseModel):
 
 
 class TestATR(IndicatorBaseModel):
-    schema = schemas.ATR
+    schema = ATR
     params = {
         "period": 14,
         "multiple": 3,
@@ -304,7 +304,7 @@ class TestATR(IndicatorBaseModel):
 
 
 class TestATRP(IndicatorBaseModel):
-    schema = schemas.ATRP
+    schema = ATRP
     params = {
         "period": 14,
         "multiple": 3,
@@ -331,7 +331,7 @@ class TestATRP(IndicatorBaseModel):
 
 
 class TestLevel(IndicatorBaseModel):
-    schema = schemas.LEVEL
+    schema = LEVEL
     params = {"level": 50}
 
     @pytest.mark.parametrize("level", [0, 100, 50])
@@ -348,7 +348,7 @@ class TestLevel(IndicatorBaseModel):
 
 
 class TestBoolean(IndicatorBaseModel):
-    schema = schemas.BOOLEAN
+    schema = BOOLEAN
     params = {"boolean": True}
 
     @pytest.mark.parametrize("boolean", [True, False])
@@ -365,7 +365,7 @@ class TestBoolean(IndicatorBaseModel):
 
 
 class TestVolatility(IndicatorBaseModel):
-    schema = schemas.VOLATILITY
+    schema = VOLATILITY
     params = {
         "period": 14,
         "multiple": 3,
@@ -384,7 +384,7 @@ class TestVolatility(IndicatorBaseModel):
 
 
 class TestPSAR(IndicatorBaseModel):
-    schema = schemas.PSAR
+    schema = PSAR
     params = {
         "type_indicator": "reversal_toUptrend",
         "init_acceleration_factor": 0.02,
@@ -451,7 +451,7 @@ class TestPSAR(IndicatorBaseModel):
 
 
 class TestHurst(IndicatorBaseModel):
-    schema = schemas.HURST
+    schema = HURST
     params = {
         "period": 20,
         "minLags": 2,
@@ -495,7 +495,7 @@ class TestHurst(IndicatorBaseModel):
 
 
 class TestBollingerBands(IndicatorBaseModel):
-    schema = schemas.BOLLINGER
+    schema = BOLLINGER
     params = {
         "period": 20,
         "numSTD": 2,
@@ -537,7 +537,7 @@ class TestBollingerBands(IndicatorBaseModel):
 
 
 class TestBandWidth(IndicatorBaseModel):
-    schema = schemas.BAND_WIDTH
+    schema = BAND_WIDTH
     params = {
         "period": 20,
         "numSTD": 2,
@@ -574,7 +574,7 @@ class TestBandWidth(IndicatorBaseModel):
 
 
 class TestDonchian(IndicatorBaseModel):
-    schema = schemas.DONCHIAN
+    schema = DONCHIAN
     params = {
         "period": 20,
         "channel": "upper",
@@ -602,7 +602,7 @@ class TestDonchian(IndicatorBaseModel):
 
 
 class TestMAD(IndicatorBaseModel):
-    schema = schemas.MAD
+    schema = MAD
     params = {
         "fastSMA_period": 12,
         "slowSMA_period": 26,
