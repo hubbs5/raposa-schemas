@@ -449,4 +449,189 @@ class TestPSAR(IndicatorBaseModel):
         failure, out = self.catch_invalid_schema({"max_acceleration_factor": max_acceleration_factor})
         assert failure, f"max_acceleration_factor = {max_acceleration_factor} should be invalid\n{out}"
 
+
+class TestHurst(IndicatorBaseModel):
+    schema = schemas.HURST
+    params = {
+        "period": 20,
+        "minLags": 2,
+        "maxLags": 20,
+    }
+
+    def test_valid_schema(self):
+        self._test_valid_schema()
+
+    @pytest.mark.parametrize("period", [0, -1, "a", None])
+    def test_invalid_period(self, period):
+        '''
+        period > 0
+        '''
+        failure, out = self.catch_invalid_schema({"period": period})
+        assert failure, f"period = {period} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("minLags", [0, -1, "a", None])
+    def test_invalid_min_lags(self, minLags):
+        '''
+        minLags > 0
+        '''
+        failure, out = self.catch_invalid_schema({"minLags": minLags})
+        assert failure, f"minLags = {minLags} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("maxLags", [0, -1, "a", None])
+    def test_invalid_max_lags(self, maxLags):
+        '''
+        maxLags > 0
+        '''
+        failure, out = self.catch_invalid_schema({"maxLags": maxLags})
+        assert failure, f"maxLags = {maxLags} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("minLags, maxLags", [(30, 2), (20, 20)])
+    def test_invalid_lag_comparison(self, minLags, maxLags):
+        '''
+        minLags < maxLags
+        '''
+        failure, out = self.catch_invalid_schema({"minLags": minLags, "maxLags": maxLags})
+        assert failure, f"minLags = {minLags}, maxLags = {maxLags} should be invalid\n{out}"
+
+
+class TestBollingerBands(IndicatorBaseModel):
+    schema = schemas.BOLLINGER
+    params = {
+        "period": 20,
+        "numSTD": 2,
+        "band": "upper",
+        "price_type": "Close",
+    }
+
+    @pytest.mark.parametrize("price_type", ["Open", "High", "Low", "Close", "Typical"])
+    def test_valid_price_type(self, price_type):
+        self._test_valid_schema({"price_type": price_type})
+
+    @pytest.mark.parametrize("band", ["upper", "lower", "middle"])
+    def test_valid_band(self, band):
+        self._test_valid_schema({"band": band})
+
+    @pytest.mark.parametrize("period", [0, -1, "a", None])
+    def test_invalid_period(self, period):
+        '''
+        period > 0
+        '''
+        failure, out = self.catch_invalid_schema({"period": period})
+        assert failure, f"period = {period} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("numSTD", [0, -1, "a", None])
+    def test_invalid_std_devs(self, numSTD):
+        '''
+        numSTD > 0
+        '''
+        failure, out = self.catch_invalid_schema({"numSTD": numSTD})
+        assert failure, f"numSTD = {numSTD} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("price_type", ["a", None, "high"])
+    def test_invalid_price_type(self, price_type):
+        '''
+        price_type = "Open", "High", "Low", "Close", "Typical"
+        '''
+        failure, out = self.catch_invalid_schema({"price_type": price_type})
+        assert failure, f"price_type = {price_type} should be invalid\n{out}"
+
+
+class TestBandWidth(IndicatorBaseModel):
+    schema = schemas.BAND_WIDTH
+    params = {
+        "period": 20,
+        "numSTD": 2,
+        "price_type": "Close",
+    }
+
+    @pytest.mark.parametrize("price_type", ["Open", "High", "Low", "Close", "Typical"])
+    def test_valid_price_type(self, price_type):
+        self._test_valid_schema({"price_type": price_type})
+
+    @pytest.mark.parametrize("period", [0, -1, "a", None])
+    def test_invalid_period(self, period):
+        '''
+        period > 0
+        '''
+        failure, out = self.catch_invalid_schema({"period": period})
+        assert failure, f"period = {period} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("numSTD", [0, -1, "a", None])
+    def test_invalid_std_devs(self, numSTD):
+        '''
+        numSTD > 0
+        '''
+        failure, out = self.catch_invalid_schema({"numSTD": numSTD})
+        assert failure, f"numSTD = {numSTD} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("price_type", ["a", None, "high"])
+    def test_invalid_price_type(self, price_type):
+        '''
+        price_type = "Open", "High", "Low", "Close", "Typical"
+        '''
+        failure, out = self.catch_invalid_schema({"price_type": price_type})
+        assert failure, f"price_type = {price_type} should be invalid\n{out}"
+
+
+class TestDonchian(IndicatorBaseModel):
+    schema = schemas.DONCHIAN
+    params = {
+        "period": 20,
+        "channel": "upper",
+    }
+
+    @pytest.mark.parametrize("channel", ["upper", "lower", "middle"])
+    def test_valid_channel(self, channel):
+        self._test_valid_schema({"channel": channel})
+
+    @pytest.mark.parametrize("period", [0, -1, "a", None])
+    def test_invalid_period(self, period):
+        '''
+        period > 0
+        '''
+        failure, out = self.catch_invalid_schema({"period": period})
+        assert failure, f"period = {period} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("channel", ["a", None, "high"])
+    def test_invalid_channel(self, channel):
+        '''
+        channel = "upper", "lower", "middle"
+        '''
+        failure, out = self.catch_invalid_schema({"channel": channel})
+        assert failure, f"channel = {channel} should be invalid\n{out}"
+
+
+class TestMAD(IndicatorBaseModel):
+    schema = schemas.MAD
+    params = {
+        "fastSMA_period": 12,
+        "slowSMA_period": 26,
+    }
+
+    def test_valid_schema(self):
+        self._test_valid_schema()
+
+    @pytest.mark.parametrize("fastSMA_period", [0, -1, "a", None])
+    def test_invalid_fastSMA_period(self, fastSMA_period):
+        '''
+        fastSMA_period > 0
+        '''
+        failure, out = self.catch_invalid_schema({"fastSMA_period": fastSMA_period})
+        assert failure, f"fastSMA_period = {fastSMA_period} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("slowSMA_period", [0, -1, "a", None])
+    def test_invalid_slowSMA_period(self, slowSMA_period):
+        '''
+        slowSMA_period > 0
+        '''
+        failure, out = self.catch_invalid_schema({"slowSMA_period": slowSMA_period})
+        assert failure, f"slowSMA_period = {slowSMA_period} should be invalid\n{out}"
+
+    @pytest.mark.parametrize("fastSMA_period, slowSMA_period", [(30, 2), (20, 20)])
+    def test_invalid_sma_comparison(self, fastSMA_period, slowSMA_period):
+        '''
+        fastSMA_period < slowSMA_period
+        '''
+        failure, out = self.catch_invalid_schema({"fastSMA_period": fastSMA_period, "slowSMA_period": slowSMA_period})
+        assert failure, f"fastSMA_period = {fastSMA_period}, slowSMA_period = {slowSMA_period} should be invalid\n{out}"
     
