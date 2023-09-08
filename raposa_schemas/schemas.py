@@ -191,9 +191,6 @@ notes about pydantic and Typing
 
 class Signal(BaseModel):
     """A Signal is a combination of two indicators"""
-
-    # indicator:  Union[MACD, EMA, MACD, SMA, RSI, STOP_PRICE, PRICE]
-    # comp_indicator: Optional[Union[SMA, EMA, MACD, PRICE, LEVEL]]
     ## TODO: add a validation check on indicator and compindicator to make sure these names are correct
     indicator: dict
     comp_indicator: Optional[dict]
